@@ -108,6 +108,12 @@ public:
         }
         return true;
     }
+    bool checkWall(uint8_t side){
+        if((this->walls&side)==0){
+            return false;
+        }
+        return true;
+    }
 };
 
 #endif

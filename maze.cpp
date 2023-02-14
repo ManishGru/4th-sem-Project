@@ -119,8 +119,65 @@ public:
             }
             else if (st.size() > 0)
             {
-                current = st[st.size()-1];
+                current = st[st.size() - 1];
                 st.pop_back();
+                float randomnum = (float)random() / (float)RAND_MAX;
+                if (randomnum > 0.9)
+                {
+                    std::vector<uint8_t> walls;
+                    if (current->checkWall(TOP))
+                    {
+                        walls.push_back(TOP);
+                    }
+                    if (current->checkWall(RIGHT))
+                    {
+                        walls.push_back(RIGHT);
+                    }
+                    if (current->checkWall(BOTTOM))
+                    {
+                        walls.push_back(BOTTOM);
+                    }
+                    if (current->checkWall(LEFT))
+                    {
+                        walls.push_back(LEFT);
+                    }
+                    if (walls.size() > 1)
+                    {
+                        uint8_t wall = walls[random() % walls.size()];
+                        if (
+                            !(wall == TOP && current->y == 0) && 
+                            !(wall == BOTTOM && current->y == rows - 1) && 
+                            !(wall == RIGHT && current->x == cols - 1) && 
+                            !(wall == LEFT && current->x == 0)
+                            )
+                        {
+                            if (wall == TOP)
+                            {
+                                current->walls = current->walls ^ TOP;
+                                Cell *next = &cells[getIndex(current->x, current->y - 1)];
+                                next->walls = next->walls ^ BOTTOM;
+                            }
+                            else if (wall == RIGHT)
+                            {
+                                current->walls = current->walls ^ RIGHT;
+                                Cell *next = &cells[getIndex(current->x + 1, current->y)];
+                                next->walls = next->walls ^ LEFT;
+                            }
+                            else if (wall == BOTTOM)
+                            {
+                                current->walls = current->walls ^ BOTTOM;
+                                Cell *next = &cells[getIndex(current->x, current->y + 1)];
+                                next->walls = next->walls ^ TOP;
+                            }
+                            else if (wall == LEFT)
+                            {
+                                current->walls = current->walls ^ LEFT;
+                                Cell *next = &cells[getIndex(current->x - 1, current->y)];
+                                next->walls = next->walls ^ RIGHT;
+                            }
+                        }
+                    }
+                }
             }
             else
             {
