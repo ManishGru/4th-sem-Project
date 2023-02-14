@@ -19,11 +19,13 @@ public:
     {
         this->x = x;
         this->y = y;
-        walls = TOP | LEFT |BOTTOM| RIGHT;
+        walls = TOP | LEFT | BOTTOM | RIGHT;
     }
     void display()
     {
+        init_pair(2, COLOR_RED, COLOR_MAGENTA);
         init_pair(1, COLOR_RED, COLOR_BLACK);
+        init_pair(5, COLOR_RED, COLOR_CYAN);
         attron(COLOR_PAIR(1));
         if (checkWall(walls, TOP) || checkWall(walls, LEFT))
             mvprintw(y * 4, x * 5, "+");
@@ -32,7 +34,11 @@ public:
         if (checkWall(walls, TOP))
             mvprintw(y * 4, x * 5 + 1, "---");
         else
+        {
+            attron(COLOR_PAIR(5));
             mvprintw(y * 4, x * 5 + 1, "   ");
+            attroff(COLOR_PAIR(5));
+        }
         if (checkWall(walls, TOP) || checkWall(walls, RIGHT))
             mvprintw(y * 4, x * 5 + 4, "+");
         else
@@ -44,26 +50,33 @@ public:
             if (checkWall(walls, LEFT))
                 mvprintw(y * 4 + 1 + i, x * 5, "|");
             else
+            {
+                attron(COLOR_PAIR(5));
                 mvprintw(y * 4 + 1 + i, x * 5, " ");
+                attroff(COLOR_PAIR(5));
+            }
             attroff(COLOR_PAIR(1));
             if (visited == true)
             {
-                init_pair(5, COLOR_RED, COLOR_CYAN);
+
                 attron(COLOR_PAIR(5));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(5));
             }
             else
             {
-                attron(COLOR_PAIR(1));
+                attron(COLOR_PAIR(2));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(1));
+                attroff(COLOR_PAIR(2));
             }
             attron(COLOR_PAIR(1));
             if (checkWall(walls, RIGHT))
                 mvprintw(y * 4 + 1 + i, x * 5 + 4, "|");
-            else
+            else{
+                attron(COLOR_PAIR(5));
                 mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
+                attroff(COLOR_PAIR(5));
+            }
             attroff(COLOR_PAIR(1));
         }
         attron(COLOR_PAIR(1));
@@ -76,7 +89,11 @@ public:
             mvprintw(y * 4 + 3, x * 5 + 1, "---");
         }
         else
+        {
+            attron(COLOR_PAIR(5));
             mvprintw(y * 4 + 3, x * 5 + 1, "   ");
+            attroff(COLOR_PAIR(5));
+        }
         if (checkWall(walls, BOTTOM) || checkWall(walls, RIGHT))
             mvprintw(y * 4 + 3, x * 5 + 4, "+");
         else
