@@ -15,6 +15,8 @@ public:
     uint8_t walls;
     bool visited = false;
 
+    Cell(){}
+    
     Cell(int y, int x)
     {
         this->x = x;
