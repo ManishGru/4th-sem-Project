@@ -14,15 +14,25 @@ int mx, my;
 class Maze
 {
 public:
-    int rows;        // Number of Rows in the maze
-    int cols;        // Number of Columns in the maze
-    int visited = 0; // stores the number of cess visited
-    std::vector<Cell> cells;
+    int rows;                // Number of Rows in the maze
+    int cols;                // Number of Columns in the maze
+    int visited = 0;         // stores the number of cess visited
+    std::vector<Cell> cells; // All the cells of the grid
+    Cell *startcell;         // start cell in the maze
+    Cell *endcell;           // end cell in the maze
+    // initialize the maze
+
+#ifdef Astar
+    int g_score;
+    int h_score;
+    int f_score;
+#endif
 
     Maze(int rows = 16, int cols = 16)
     {
         this->rows = rows;
         this->cols = cols;
+        // define all the cells
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < cols; j++)
@@ -30,7 +40,18 @@ public:
                 cells.push_back(*(new Cell(i, j)));
             }
         }
+        startcell = &cells[0];
+        startcell->isStart = true;
+        endcell = &cells[cells.size() - 1];
+        endcell->isEnd = true;
+
+#ifdef Astar
+        g_score = INT16_MAX;
+        h_score = INT16_MAX;
+        f_score = INT16_MAX;
+#endif
     }
+    // display all the cells
     void display()
     {
         system("clear");
@@ -39,22 +60,24 @@ public:
             c.display();
         }
     }
+    // generate the maze
     void generateMaze()
     {
-        Cell *current = &cells[0];
+        Cell *current = &cells[0]; // selecting a 0th cell as initial cell in the maze
         current->visited = true;
-        std::vector<Cell *> st;
-        while (visited < cells.size())
+        std::vector<Cell *> st; // stack to backtrack the path
+        // loop to generate maze
+        while (1)
         {
-            std::vector<Cell *> neighbours;
+            std::vector<Cell *> neighbours; // stores the neighbour of current cell
             // top
-            int index = getIndex(current->x, current->y - 1);
+            int index = getIndex(current->x, current->y - 1); // index of cell in the above of current cell
             if (index != -1)
             {
                 Cell *top = &cells[index];
                 if (!top->visited)
                 {
-                    neighbours.push_back(top);
+                    neighbours.push_back(top); // stores the cell in the neighbour array;
                 }
             }
             // right
@@ -90,14 +113,17 @@ public:
             // getmaxyx(stdscr, my, mx);
             // mvprintw(my - last - 1, 0, "x = %d y = %d ,%ld", current->x, current->y, neighbours.size());
             // last++;break;
+
+            // if there is at least one neighbour in the array
             if (neighbours.size() != 0)
             {
-                Cell *next = neighbours[std::rand() % neighbours.size()];
-                st.push_back(current);
+                Cell *next = neighbours[std::rand() % neighbours.size()]; // chooses one of the neighbour randomly
+                st.push_back(current);                                    // pushes the current cell into stack
+                // check the location of the next cell and remove wall accordingly
                 if (current->x < next->x)
                 {
-                    current->walls = current->walls ^ RIGHT;
-                    next->walls = next->walls ^ LEFT;
+                    current->walls = current->walls ^ RIGHT; // removes the right wall of current cell
+                    next->walls = next->walls ^ LEFT;        // removes the left wall of next cell
                 }
                 else if (current->x > next->x)
                 {
@@ -114,17 +140,18 @@ public:
                     current->walls = current->walls ^ TOP;
                     next->walls = next->walls ^ BOTTOM;
                 }
-                current = next;
-                current->visited = true;
+                current = next;          // next is made the current
+                current->visited = true; // make the current cell as visited
             }
-            else if (st.size() > 0)
+            else if (st.size() > 0) // check if there is no neighbour and stack size is greater than 0
             {
-                current = st[st.size() - 1];
-                st.pop_back();
-                float randomnum = (float)random() / (float)RAND_MAX;
-                if (randomnum > 0.9)
+                current = st[st.size() - 1];                         // get last cell as the current cell
+                st.pop_back();                                       // remove the last cell
+                float randomnum = (float)random() / (float)RAND_MAX; // get random number to remmove wall from the current cell
+                if (randomnum > 0.9)                                 // remove wall randomly 0.1 times
                 {
-                    std::vector<uint8_t> walls;
+                    std::vector<uint8_t> walls; // stores the walls of current cell
+                    // check the wall and push it into the array
                     if (current->checkWall(TOP))
                     {
                         walls.push_back(TOP);
@@ -141,16 +168,18 @@ public:
                     {
                         walls.push_back(LEFT);
                     }
+                    // if there are more than 1 walli
                     if (walls.size() > 1)
                     {
-                        uint8_t wall = walls[random() % walls.size()];
+                        uint8_t wall = walls[random() % walls.size()]; // randomly choose the wall
+                        // check if the wall selected is not border wall
                         if (
-                            !(wall == TOP && current->y == 0) && 
-                            !(wall == BOTTOM && current->y == rows - 1) && 
-                            !(wall == RIGHT && current->x == cols - 1) && 
-                            !(wall == LEFT && current->x == 0)
-                            )
+                            !(wall == TOP && current->y == 0) &&
+                            !(wall == BOTTOM && current->y == rows - 1) &&
+                            !(wall == RIGHT && current->x == cols - 1) &&
+                            !(wall == LEFT && current->x == 0))
                         {
+                            // remove selected wall
                             if (wall == TOP)
                             {
                                 current->walls = current->walls ^ TOP;
@@ -179,13 +208,16 @@ public:
                     }
                 }
             }
-            else
+            else // there is no neighbour and there is nothing in stack.
             {
                 break;
             }
-            this->display();
+            // this->display();
         }
     }
+
+    // get the index of the cell in the current grid using x and y of the cell
+    // Returns -1 if the cell is out of bounds
     int getIndex(int x, int y)
     {
         if (x < 0 || y < 0 || x > cols - 1 || y > rows - 1)
@@ -194,5 +226,6 @@ public:
         }
         return x + y * cols;
     }
+
 };
 #endif

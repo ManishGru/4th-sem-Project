@@ -46,6 +46,19 @@
 		"sstream": "cpp",
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"complex": "cpp",
+		"deque": "cpp",
+		"forward_list": "cpp",
+		"map": "cpp",
+		"unordered_set": "cpp",
+		"numeric": "cpp",
+		"optional": "cpp",
+		"ratio": "cpp",
+		"numbers": "cpp",
+		"set": "cpp",
+		"cinttypes": "cpp",
+		"typeindex": "cpp",
+		"queue": "cpp"
 	}
 }
