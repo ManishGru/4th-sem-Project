@@ -3,33 +3,28 @@
 #include <vector>
 #include <bits/stdc++.h>
 
-int x = 10, y = 25;
-
 class dijkstra
 {
 public:
     int x, y;
-    Maze maze;
     Cell cell;
-
-    dijkstra() {} // the Default Constructor
+    dijkstra() {}
+    Maze maze;
+    std::vector<Cell *> neighbours;
     dijkstra(int x, int y)
     {
         this->x = x;
         this->y = y;
     }
-    int total_cells = x * y;
-
-    bool isProcessed = false;
     void shortPath(std::vector<std::vector<int>> *g);
-    void findneighbour(Cell cell, Maze maze, std::vector<Cell *> *neighbours, Cell *current, std::vector<Cell> cells, std::vector<std::vector<int>> *g, std::vector<int> *value, int *last, std::vector<bool> *processed);
+    void findneighbour(std::vector<Cell *> *neighbours, Cell *current, std::vector<std::vector<int>> *g, std::vector<int> *value, std::vector<bool> *processed);
     Cell *selectMinCell(std::vector<int> &value, std::vector<bool> &processed);
 };
 
 Cell *dijkstra::selectMinCell(std::vector<int> &value, std::vector<bool> &processed)
 {
     int minimum = INT_MAX;
-    Cell *minCell = new Cell();
+    Cell *minCell;
 
     for (int i = 0; i < x * y - 1; i++)
     {
@@ -40,32 +35,31 @@ Cell *dijkstra::selectMinCell(std::vector<int> &value, std::vector<bool> &proces
         }
     }
     return minCell;
-    delete minCell;
 }
 
 void dijkstra::shortPath(std::vector<std::vector<int>> *g)
 {
     int total_cells = x * y;
     int countCellvisited = -1;
+    std::vector<int> value(total_cells, INT_MAX);
+    std::vector<bool> processed(total_cells, false);
 
     // for debugging
     getmaxyx(stdscr, my, mx);
     last = 0;
 
-    int parentCell[total_cells]; // Stores Shortest Path Structure
+    int parentCell[total_cells];
     for (int i = 0; i < total_cells - 1; i++)
     {
         parentCell[i] = -1;
     }
-    // assign every cell a distance value of INFINITY
-    std::vector<int> value(total_cells, INT_MAX); // keeps shortest path values to each cell from source cell
-    // mark all cells as unvisited
-    std::vector<bool> processed(total_cells, false); // TRUE == Cells is processed
-    std::vector<Cell *> neighbours;                  // Stores the neighbour of the current cell
+    // std::vector<int> value(total_cells, INT_MAX);
+    // std::vector<bool> processed(total_cells, false);
+    // std::vector<Cell *> neighbours;
 
     value[0] = 0;
 
-    Cell *U = new Cell();
+    Cell *U;
     U = &maze.cells[0];
     maze.endcell;
 
@@ -74,34 +68,18 @@ void dijkstra::shortPath(std::vector<std::vector<int>> *g)
     while (!isLoop)
     {
         neighbours.clear();
-        U = selectMinCell(value, processed); // chooses one of the neighbour randomly
+        U = selectMinCell(value, processed);
         countCellvisited += 1;
         int Uidx = maze.getIndex(U->x, U->y);
 
-        // Displays the initial selected cell
-        // U->current = true;
-        // U->display();
-
-        findneighbour(cell, maze, &neighbours, U, maze.cells, g, &value, &last, &processed);
+        findneighbour(&neighbours, U, g, &value, &processed);
         processed[Uidx] = true;
 
-        Cell *nextCell = new Cell();
-        // step 3
+        Cell *nextCell;
         while (neighbours.size() > 0)
         {
-            // choose nextCell as random cell
-            // if (neighbours.size() == 1)
-            // {
-            //     // mvprintw(my - last - 1, 0, "only one neighbours");
-            //     // last++;
-            //     nextCell = neighbours[0];
-            // }
-            // else
-            // {
-            // nextCell = neighbours[std::rand() % neighbours.size()];
             nextCell = neighbours.back();
             neighbours.pop_back();
-            // }
             int neighidx = maze.getIndex(nextCell->x, nextCell->y);
 
             // tracking stops if endCell found
@@ -118,7 +96,6 @@ void dijkstra::shortPath(std::vector<std::vector<int>> *g)
                 parentCell[neighidx] = Uidx;
             }
         }
-        // check all is processed or not
         int count = 0;
         for (int i = 0; i < total_cells; i++)
         {
@@ -132,7 +109,6 @@ void dijkstra::shortPath(std::vector<std::vector<int>> *g)
             isLoop = true;
         }
     }
-    // Display Shortest Path graph
     int displayCellidx;
     Cell displayCell;
     int ptIdx = (int)parentCell[total_cells - 1];
@@ -141,7 +117,6 @@ void dijkstra::shortPath(std::vector<std::vector<int>> *g)
         if (ptIdx != -1)
         {
             displayCell = maze.cells[ptIdx];
-            // Display the Shortest Path
             displayCell.dijsktrashortPath = true;
             displayCell.display();
             ptIdx = (int)parentCell[ptIdx];
@@ -152,7 +127,7 @@ void dijkstra::shortPath(std::vector<std::vector<int>> *g)
     displayCell.display();
 }
 
-void dijkstra::findneighbour(Cell cell, Maze maze, std::vector<Cell *> *neighbours, Cell *current, std::vector<Cell> cells, std::vector<std::vector<int>> *g, std::vector<int> *value, int *last, std::vector<bool> *processed)
+void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current, std::vector<std::vector<int>> *g, std::vector<int> *value, std::vector<bool> *processed)
 {
     int currentidx = maze.getIndex(current->x, current->y);
     refresh();
@@ -235,9 +210,8 @@ int main()
     std::srand(std::time(nullptr));
     initscr();
     raw();
-
+    int x = 13, y = 41;
     dijkstra dijkstra(x, y);
-    dijkstra.cell = Cell(x, y);
     dijkstra.maze = Maze(x, y);
 
     system("clear");
@@ -245,7 +219,6 @@ int main()
 
     dijkstra.maze.generateMaze();
 
-    // assign every cell to cell a distance value of 0
     std::vector<std::vector<int>> g((x - 1) * (x - 1) * (y - 1) * (y - 1), std::vector<int>(x, 0));
     dijkstra.shortPath(&g);
 
