@@ -18,7 +18,6 @@ public:
     bool isEnd = false;
     bool isOpen = false;
     bool isPath = false;
-    bool current = false;
     bool neighbours = false;
     bool dijsktrashortPath = false;
     // std::vector<Cell*> itsneighbours;
@@ -56,12 +55,6 @@ public:
                 mvprintw(y * 4, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(6));
             }
-            else if (current)
-            {
-                attron(COLOR_PAIR(4));
-                mvprintw(y * 4, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(4));
-            }
             else if (neighbours)
             {
                 attron(COLOR_PAIR(5));
@@ -91,12 +84,6 @@ public:
                     mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
                     attroff(COLOR_PAIR(6));
                 }
-                else if (current)
-                {
-                    attron(COLOR_PAIR(4));
-                    mvprintw(y * 4 + 1 + i, x * 5, " ");
-                    attroff(COLOR_PAIR(4));
-                }
                 else if (neighbours)
                 {
                     attron(COLOR_PAIR(5));
@@ -116,11 +103,11 @@ public:
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(6));
             }
-            else if (current)
+            else if (isEnd)
             {
-                attron(COLOR_PAIR(4));
+                attron(COLOR_PAIR(6));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(4));
+                attroff(COLOR_PAIR(6));
             }
             else if (neighbours)
             {
@@ -133,12 +120,6 @@ public:
                 attron(COLOR_PAIR(1));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(1));
-            }
-            else if (isEnd)
-            {
-                attron(COLOR_PAIR(6));
-                mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(6));
             }
 
             else
@@ -156,12 +137,6 @@ public:
                     attron(COLOR_PAIR(6));
                     mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
                     attroff(COLOR_PAIR(6));
-                }
-                else if (current)
-                {
-                    attron(COLOR_PAIR(4));
-                    mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
-                    attroff(COLOR_PAIR(4));
                 }
                 else if (neighbours)
                 {
@@ -190,12 +165,6 @@ public:
                 attron(COLOR_PAIR(6));
                 mvprintw(y * 4 + 3, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(6));
-            }
-            else if (current)
-            {
-                attron(COLOR_PAIR(5));
-                mvprintw(y * 4 + 3, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(5));
             }
             else if (neighbours)
             {
