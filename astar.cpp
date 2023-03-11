@@ -3,19 +3,21 @@
 #include "./cell.cpp"
 #include "./maze.cpp"
 #include <unistd.h>
-// #include "./bot.cpp"
-
+#include <math.h>
 using namespace std;
 
 int ROWS, COLS;
 /*---------------------------------------*/
+/*
+    Star Class contain each cell and its f,g,h scores, neighbours and their parents
+*/
 class Star
 {
 public:
     Cell *cell;
-    int g_score;
-    int h_score;
-    int f_score;
+    long g_score;
+    long h_score;
+    long f_score;
     std::vector<Star> itsneighbours;
     Star *previous;
 
@@ -48,7 +50,7 @@ public:
     Star &operator=(Star &&) = default;
     Star &operator=(const Star &) = default;
 
-    inline bool operator==(Star s)
+    inline bool operator==(Star s) // checks if two cells are same comparing their indices
     {
         if ((s.cell->x == cell->x) && (s.cell->y == cell->y))
             return 1;
@@ -56,7 +58,7 @@ public:
             return 0;
     }
 
-    inline int getIndex()
+    inline int getIndex() // convert (x,y) into index
     {
         if (cell->x < 0 || cell->y < 0 || this->cell->x > ROWS - 1 || cell->y > COLS - 1)
         {
@@ -74,14 +76,13 @@ inline int getIndex(int x, int y)
     }
     return x + y * COLS;
 }
-inline int h(Cell c1, Cell c2)
+
+inline int h(Cell c1, Cell c2) // heuristics
 {
-    return (abs(c1.x - c2.x) + abs(c1.y - c2.y));
+    return (sqrt((c2.x - c1.x) * (c2.x - c1.x) + (c2.y - c1.y) * (c2.y - c1.y)));
 }
-
 /*---------------------------------------*/
-
-void aStar(Maze &maze, int check)
+void aStar(Maze &maze, int check) // main function that compute shortest path
 {
     ROWS = maze.rows, COLS = maze.cols;
     int s = maze.getIndex(maze.startcell->x, maze.startcell->y);
@@ -89,29 +90,30 @@ void aStar(Maze &maze, int check)
     Star end(maze.endcell, INT16_MAX, INT16_MAX, INT16_MAX);
     Star start(maze.startcell, 0, 0, 0);
 
-    vector<Star> openSet;
-    vector<Star> closedSet;
-    openSet.push_back(start);
+    vector<Star> openSet;   // contain those cells which are next to be visited
+    vector<Star> closedSet; // contain those cells which are already visited
+
+    openSet.push_back(start); // initilize
 
     int count = 0;
-    while (1)
+    while (1) // loop
     {
         int winner = 0;
-        if (openSet.size() == 0)
+        if (openSet.size() == 0) // chech if any cell is left to be visited before finding end cell
         {
             printw("nosolution!!!");
             return;
         }
-        for (int i = 0; i < openSet.size(); i++)
+        for (int i = 0; i < openSet.size(); i++) // make the decision which cell to choose next
         {
-            if (check)
+            if (check) // choose according to g_score
             {
-                if (openSet[i].h_score < openSet[winner].h_score)
+                if (openSet[i].g_score < openSet[winner].g_score)
                 {
                     winner = i;
                 }
             }
-            else
+            else // choose according to g_score
             {
                 if (openSet[i].f_score < openSet[winner].f_score)
                 {
@@ -119,8 +121,12 @@ void aStar(Maze &maze, int check)
                 }
             }
         }
+
         Star current = openSet[winner];
-        /*-----------------------------------------------*/
+
+        /*
+            find the neighbouring cells to the current cell
+        */
         int x;
 
         if (!(current.cell->checkWall(TOP)))
@@ -148,29 +154,27 @@ void aStar(Maze &maze, int check)
                 current.itsneighbours.push_back(Star(&maze.cells[x], INT16_MAX, INT16_MAX, INT16_MAX));
         }
 
-        // for (int i = 0; i < current.itsneighbours.size(); i++)
-        // {
-        //     current.itsneighbours[i].cell->isOpen = true;
-        // }
-        /*---------------------------------------------*/
+        /*
+            check if the end of the maze is reached
+        */
 
         if (current == end)
         {
             Star *temp = current.previous;
-            // usleep(20000);
-            while (!(*temp == start))
+            while (!(*temp == start)) // back track to the start from end cell
             {
                 temp->cell->isPath = true;
                 temp->cell->display();
                 temp = temp->previous;
-                // usleep(10000);
                 refresh();
             }
-            printw("   DONE!!");
+            printw("   DONE!!"); /*---/fɪˈniːtəʊ/---*/
             break;
         }
-        /*---------------------------------------------*/
 
+        /*
+            iterate over open set to remove current cell from open set
+        */
         vector<Star>::iterator it;
         int i;
         for (it = openSet.begin(), i = 0; it <= openSet.end(); it++, i++)
@@ -180,12 +184,12 @@ void aStar(Maze &maze, int check)
                 openSet.erase(it);
             }
         }
-        closedSet.push_back(current);
+        closedSet.push_back(current); // add current cell to closed list
 
         int high_f = INT16_MAX, high_neb = 0;
-        for (int i = 0; i < current.itsneighbours.size(); i++)
+
+        for (int i = 0; i < current.itsneighbours.size(); i++) // traverse over all the neighbours of the current cell
         {
-            // }
             bool inOpen = false, inClose = false;
             Star neigh = current.itsneighbours[i];
 
@@ -197,7 +201,9 @@ void aStar(Maze &maze, int check)
                     break;
                 }
             }
-            if (!inClose)
+
+            if (!inClose)   //if the neighbour is not visited before
+
             {
                 neigh.previous = new Star();
                 *neigh.previous = current;
@@ -211,28 +217,26 @@ void aStar(Maze &maze, int check)
                         break;
                     }
                 }
-                if (inOpen)
+                if (inOpen)         //and is in open list
                 {
-                    if (tempg < openSet[j].g_score)
+                    if (tempg < openSet[j].g_score) //then check for g_score 
                     {
-                        openSet[j].g_score = tempg;
+                        openSet[j].g_score = tempg; //and update
                     }
                     end.cell->isOpen = true;
                 }
-                else
+                else            //update values
                 {
-
                     neigh.g_score = tempg;
                     neigh.cell->isOpen = true;
                     neigh.h_score = h(*neigh.cell, *end.cell);
                     neigh.f_score = neigh.g_score + neigh.h_score;
                     openSet.push_back(neigh);
                 }
-
-                // neigh.h_score = h(*neigh.cell, *end.cell);
-                // neigh.f_score = neigh.g_score + neigh.h_score;
             }
-
+            /*
+                these stuffs to display shortest path from start to current in each cycle
+            */
             Star *temp = &current;
             while (!(*temp == start))
             {
@@ -243,19 +247,16 @@ void aStar(Maze &maze, int check)
                 temp = temp->previous;
             }
             refresh();
-            // usleep(1000);
-            // neigh.cell->display();
-
             for (int i = 0; i < closedSet.size(); i++)
             {
-                // usleep(10);
                 closedSet[i].cell->display();
             }
             refresh();
+            inOpen = false;
         }
         count++;
         int mx, my;
         getmaxyx(stdscr, my, mx);
-        mvprintw(my - 0 - 1, 0, "g_score = %ld, h_score = %ld, f_score = %d, count = %d", current.g_score, current.h_score, current.g_score, count);
+        mvprintw(my - 0 - 1, 0, "g_score = %ld, h_score = %ld, f_score = %ld, count = %d", current.g_score, current.h_score, current.f_score, count);
     }
 }
