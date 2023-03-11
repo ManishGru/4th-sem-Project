@@ -18,8 +18,8 @@ public:
     bool isEnd = false;
     bool isOpen = false;
     bool isPath = false;
-    bool neighbours = false;
-    bool dijsktrashortPath = false;
+    // bool neighbours = false;
+    // bool dijsktrashortPath = false;
     // std::vector<Cell*> itsneighbours;
     // initialize the cell
 
@@ -34,11 +34,11 @@ public:
     // display the cell
     void display()
     {
-        init_pair(1, COLOR_BLACK, COLOR_GREEN);
-        init_pair(2, COLOR_BLACK, COLOR_MAGENTA);
-        init_pair(3, COLOR_BLACK, COLOR_CYAN);
-        init_pair(5, COLOR_BLACK, COLOR_RED);     // NEIGHBOUR
-        init_pair(6, COLOR_BLACK, COLOR_MAGENTA); // DIJKSTRA SHORTPATH
+        init_pair(1, COLOR_RED, COLOR_GREEN);
+        init_pair(2, COLOR_RED, COLOR_RED);
+        init_pair(3, COLOR_RED, COLOR_BLACK);
+        init_pair(4, COLOR_RED, COLOR_BLUE); // NEIGHBOUR
+        init_pair(5, COLOR_RED, COLOR_CYAN); // DIJKSTRA SHORTPATH
 
         if (checkWall(walls, TOP) || checkWall(walls, LEFT))
             mvprintw(y * 4, x * 5, "+");
@@ -48,17 +48,17 @@ public:
             mvprintw(y * 4, x * 5 + 1, "---");
         else
         {
-            if (dijsktrashortPath)
-            {
-                attron(COLOR_PAIR(6));
-                mvprintw(y * 4, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(6));
-            }
-            else if (neighbours)
+            if (isPath)
             {
                 attron(COLOR_PAIR(5));
                 mvprintw(y * 4, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(5));
+            }
+            else if (isOpen)
+            {
+                attron(COLOR_PAIR(4));
+                mvprintw(y * 4, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(4));
             }
             else
             {
@@ -77,17 +77,18 @@ public:
                 mvprintw(y * 4 + 1 + i, x * 5, "|");
             else
             {
-                if (dijsktrashortPath)
-                {
-                    attron(COLOR_PAIR(6));
-                    mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
-                    attroff(COLOR_PAIR(6));
-                }
-                else if (neighbours)
+
+                if (isPath)
                 {
                     attron(COLOR_PAIR(5));
                     mvprintw(y * 4 + 1 + i, x * 5, " ");
                     attroff(COLOR_PAIR(5));
+                }
+                else if (isOpen)
+                {
+                    attron(COLOR_PAIR(4));
+                    mvprintw(y * 4 + 1 + i, x * 5, " ");
+                    attroff(COLOR_PAIR(4));
                 }
                 else
                 {
@@ -96,30 +97,32 @@ public:
                     attroff(COLOR_PAIR(3));
                 }
             }
-            if (dijsktrashortPath)
-            {
-                attron(COLOR_PAIR(6));
-                mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(6));
-            }
-            else if (isEnd)
+
+            if (isStart)
             {
                 attron(COLOR_PAIR(1));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(1));
             }
-            else if (neighbours)
+            else if (isEnd)
+            {
+                attron(COLOR_PAIR(2));
+                mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(2));
+            }
+            else if (isPath)
             {
                 attron(COLOR_PAIR(5));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(5));
             }
-            else if (isStart)
+            else if (isOpen)
             {
-                attron(COLOR_PAIR(1));
+                attron(COLOR_PAIR(4));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(1));
+                attroff(COLOR_PAIR(4));
             }
+
             else
             {
                 attron(COLOR_PAIR(3));
@@ -130,17 +133,18 @@ public:
                 mvprintw(y * 4 + 1 + i, x * 5 + 4, "|");
             else
             {
-                if (dijsktrashortPath)
-                {
-                    attron(COLOR_PAIR(6));
-                    mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
-                    attroff(COLOR_PAIR(6));
-                }
-                else if (neighbours)
+
+                if (isPath)
                 {
                     attron(COLOR_PAIR(5));
                     mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
                     attroff(COLOR_PAIR(5));
+                }
+                else if (isOpen)
+                {
+                    attron(COLOR_PAIR(4));
+                    mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
+                    attroff(COLOR_PAIR(4));
                 }
                 else
                 {
@@ -158,13 +162,13 @@ public:
             mvprintw(y * 4 + 3, x * 5 + 1, "---");
         else
         {
-            if (dijsktrashortPath)
+            if (isPath)
             {
-                attron(COLOR_PAIR(6));
+                attron(COLOR_PAIR(5));
                 mvprintw(y * 4 + 3, x * 5 + 1, "   ");
-                attroff(COLOR_PAIR(6));
+                attroff(COLOR_PAIR(5));
             }
-            else if (neighbours)
+            else if (isOpen)
             {
                 attron(COLOR_PAIR(4));
                 mvprintw(y * 4 + 3, x * 5 + 1, "   ");

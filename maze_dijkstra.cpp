@@ -48,7 +48,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
         if (topidx != -1)
         {
             Cell *top = &maze.cells[topidx];
-            top->neighbours = true;
+            top->isOpen = true;
             top->display();
             usleep(2000);
             g[currentidx][topidx] = 1;
@@ -62,7 +62,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
         if (bottomidx != -1)
         {
             Cell *bottom = &maze.cells[bottomidx];
-            bottom->neighbours = true;
+            bottom->isOpen = true;
             bottom->display();
             usleep(2000);
             g[currentidx][bottomidx] = 1;
@@ -76,7 +76,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
         if (rightidx != -1)
         {
             Cell *right = &maze.cells[rightidx];
-            right->neighbours = true;
+            right->isOpen = true;
             right->display();
             usleep(2000);
             g[currentidx][rightidx] = 1;
@@ -90,7 +90,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
         if (leftidx != -1)
         {
             Cell *left = &maze.cells[leftidx];
-            left->neighbours = true;
+            left->isOpen = true;
             left->display();
             usleep(2000);
             g[currentidx][leftidx] = 1;
@@ -168,7 +168,7 @@ void dijkstra::shortPath()
         {
             displayCell = maze.cells[ptIdx];
             // Display the Shortest Path
-            displayCell.dijsktrashortPath = true;
+            displayCell.isPath = true;
             displayCell.display();
             ptIdx = (int)parentCell[ptIdx];
         }
