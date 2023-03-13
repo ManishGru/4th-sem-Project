@@ -2,7 +2,7 @@
 #define __CELL__
 #include <iostream>
 #include <ncurses.h>
-#include "./maze.cpp"
+// #include "./maze.cpp"
 #define TOP 0X01
 #define LEFT 0X02
 #define BOTTOM 0X04
@@ -16,7 +16,15 @@ public:
     bool visited = false;
     bool isStart = false;
     bool isEnd = false;
+    bool isOpen = false;
+    bool isPath = false;
+    // bool neighbours = false;
+    // bool dijsktrashortPath = false;
+    // std::vector<Cell*> itsneighbours;
     // initialize the cell
+
+    Cell() {}
+
     Cell(int y, int x)
     {
         this->x = x;
@@ -26,10 +34,12 @@ public:
     // display the cell
     void display(int current = 0)
     {
-        init_pair(1, COLOR_BLACK, COLOR_GREEN);
-        init_pair(2, COLOR_BLACK, COLOR_RED);
-        init_pair(3, COLOR_BLACK, COLOR_WHITE);
-        init_pair(4, COLOR_BLACK, COLOR_CYAN);
+        init_pair(1, COLOR_RED, COLOR_GREEN);
+        init_pair(2, COLOR_RED, COLOR_RED);
+        init_pair(3, COLOR_RED, COLOR_BLACK);
+        init_pair(4, COLOR_RED, COLOR_BLUE); // NEIGHBOUR
+        init_pair(5, COLOR_RED, COLOR_CYAN); // DIJKSTRA SHORTPATH
+
         if (checkWall(walls, TOP) || checkWall(walls, LEFT))
             mvprintw(y * 4, x * 5, "+");
         else
@@ -38,9 +48,24 @@ public:
             mvprintw(y * 4, x * 5 + 1, "---");
         else
         {
-            attron(COLOR_PAIR(3));
-            mvprintw(y * 4, x * 5 + 1, "   ");
-            attroff(COLOR_PAIR(3));
+            if (isPath)
+            {
+                attron(COLOR_PAIR(5));
+                mvprintw(y * 4, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(5));
+            }
+            else if (isOpen)
+            {
+                attron(COLOR_PAIR(4));
+                mvprintw(y * 4, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(4));
+            }
+            else
+            {
+                attron(COLOR_PAIR(3));
+                mvprintw(y * 4, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(3));
+            }
         }
         if (checkWall(walls, TOP) || checkWall(walls, RIGHT))
             mvprintw(y * 4, x * 5 + 4, "+");
@@ -52,9 +77,25 @@ public:
                 mvprintw(y * 4 + 1 + i, x * 5, "|");
             else
             {
-                attron(COLOR_PAIR(3));
-                mvprintw(y * 4 + 1 + i, x * 5, " ");
-                attroff(COLOR_PAIR(3));
+
+                if (isPath)
+                {
+                    attron(COLOR_PAIR(5));
+                    mvprintw(y * 4 + 1 + i, x * 5, " ");
+                    attroff(COLOR_PAIR(5));
+                }
+                else if (isOpen)
+                {
+                    attron(COLOR_PAIR(4));
+                    mvprintw(y * 4 + 1 + i, x * 5, " ");
+                    attroff(COLOR_PAIR(4));
+                }
+                else
+                {
+                    attron(COLOR_PAIR(3));
+                    mvprintw(y * 4 + 1 + i, x * 5, " ");
+                    attroff(COLOR_PAIR(3));
+                }
             }
             if (current == 1)
             {
@@ -74,6 +115,19 @@ public:
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
                 attroff(COLOR_PAIR(2));
             }
+            else if (isPath)
+            {
+                attron(COLOR_PAIR(5));
+                mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(5));
+            }
+            else if (isOpen)
+            {
+                attron(COLOR_PAIR(4));
+                mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(4));
+            }
+
             else
             {
                 attron(COLOR_PAIR(3));
@@ -84,9 +138,25 @@ public:
                 mvprintw(y * 4 + 1 + i, x * 5 + 4, "|");
             else
             {
-                attron(COLOR_PAIR(3));
-                mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
-                attroff(COLOR_PAIR(3));
+
+                if (isPath)
+                {
+                    attron(COLOR_PAIR(5));
+                    mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
+                    attroff(COLOR_PAIR(5));
+                }
+                else if (isOpen)
+                {
+                    attron(COLOR_PAIR(4));
+                    mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
+                    attroff(COLOR_PAIR(4));
+                }
+                else
+                {
+                    attron(COLOR_PAIR(3));
+                    mvprintw(y * 4 + 1 + i, x * 5 + 4, " ");
+                    attroff(COLOR_PAIR(3));
+                }
             }
         }
         if (checkWall(walls, BOTTOM) || checkWall(walls, LEFT))
@@ -97,9 +167,24 @@ public:
             mvprintw(y * 4 + 3, x * 5 + 1, "---");
         else
         {
-            attron(COLOR_PAIR(3));
-            mvprintw(y * 4 + 3, x * 5 + 1, "   ");
-            attroff(COLOR_PAIR(3));
+            if (isPath)
+            {
+                attron(COLOR_PAIR(5));
+                mvprintw(y * 4 + 3, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(5));
+            }
+            else if (isOpen)
+            {
+                attron(COLOR_PAIR(4));
+                mvprintw(y * 4 + 3, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(4));
+            }
+            else
+            {
+                attron(COLOR_PAIR(3));
+                mvprintw(y * 4 + 3, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(3));
+            }
         }
         if (checkWall(walls, BOTTOM) || checkWall(walls, RIGHT))
             mvprintw(y * 4 + 3, x * 5 + 4, "+");
@@ -123,6 +208,11 @@ public:
             return false;
         }
         return true;
+    }
+
+    bool operator==(const Cell &rhs) const
+    {
+        return x == rhs.x && y == rhs.y;
     }
 };
 

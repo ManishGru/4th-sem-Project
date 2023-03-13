@@ -21,6 +21,12 @@ public:
     Cell *startcell;         // start cell in the maze
     Cell *endcell;           // end cell in the maze
     // initialize the maze
+
+    Maze(Maze &&) = default;
+    Maze(const Maze &) = default;
+    Maze &operator=(Maze &&) = default;
+    Maze &operator=(const Maze &) = default;
+
     Maze(int rows = 16, int cols = 16)
     {
         this->rows = rows;
@@ -229,6 +235,36 @@ public:
             return -1;
         }
         return x + y * cols;
+    }
+
+    void clear()
+    {
+        cells.clear();
+        // std::vector<Cell>::iterator it;
+        // for (auto it = cells.begin();  it != cells.end(); it++)
+        // {
+        //         cells.erase(it);
+        // }
+        int visited = 0;
+        delete[] startcell;
+        delete[] endcell;
+    }
+    void genMazeAgain()
+    {
+        this->clear();
+        // define all the cells
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                cells.push_back(*(new Cell(i, j)));
+            }
+        }
+        startcell = &cells[0];
+        startcell->isStart = true;
+        endcell = &cells[cells.size() - 1];
+        endcell->isEnd = true;
+        this->generateMaze();
     }
 };
 #endif
