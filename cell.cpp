@@ -16,7 +16,7 @@ public:
     bool visited = false;
     bool isStart = false;
     bool isEnd = false;
-    //initialize the cell
+    // initialize the cell
     Cell(int y, int x)
     {
         this->x = x;
@@ -24,11 +24,12 @@ public:
         walls = TOP | LEFT | BOTTOM | RIGHT;
     }
     // display the cell
-    void display()
+    void display(int current = 0)
     {
         init_pair(1, COLOR_BLACK, COLOR_GREEN);
         init_pair(2, COLOR_BLACK, COLOR_RED);
         init_pair(3, COLOR_BLACK, COLOR_WHITE);
+        init_pair(4, COLOR_BLACK, COLOR_CYAN);
         if (checkWall(walls, TOP) || checkWall(walls, LEFT))
             mvprintw(y * 4, x * 5, "+");
         else
@@ -55,7 +56,13 @@ public:
                 mvprintw(y * 4 + 1 + i, x * 5, " ");
                 attroff(COLOR_PAIR(3));
             }
-            if (isStart)
+            if (current == 1)
+            {
+                attron(COLOR_PAIR(4));
+                mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
+                attroff(COLOR_PAIR(4));
+            }
+            else if (isStart)
             {
                 attron(COLOR_PAIR(1));
                 mvprintw(y * 4 + 1 + i, x * 5 + 1, "   ");
@@ -99,7 +106,7 @@ public:
         else
             mvprintw(y * 4 + 3, x * 5 + 4, " ");
     }
-    //check side in the given wall
+    // check side in the given wall
     bool checkWall(uint8_t walls, uint8_t side)
     {
         if ((walls & side) == 0)

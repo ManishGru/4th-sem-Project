@@ -39,13 +39,17 @@ public:
         endcell->isEnd = true;
     }
     // display all the cells
-    void display()
+    void display(int x = -1, int y = -1)
     {
-        system("clear");
+        // system("clear");
         for (auto &c : cells)
         {
-            c.display();
+            if (c.x == x && c.y == y)
+                c.display(1);
+            else
+                c.display();
         }
+        refresh();
     }
     // generate the maze
     void generateMaze()
@@ -169,27 +173,39 @@ public:
                             // remove selected wall
                             if (wall == TOP)
                             {
-                                current->walls = current->walls ^ TOP;
                                 Cell *next = &cells[getIndex(current->x, current->y - 1)];
-                                next->walls = next->walls ^ BOTTOM;
+                                if (next->visited)
+                                {
+                                    current->walls = current->walls ^ TOP;
+                                    next->walls = next->walls ^ BOTTOM;
+                                }
                             }
                             else if (wall == RIGHT)
                             {
-                                current->walls = current->walls ^ RIGHT;
                                 Cell *next = &cells[getIndex(current->x + 1, current->y)];
-                                next->walls = next->walls ^ LEFT;
+                                if (next->visited)
+                                {
+                                    current->walls = current->walls ^ RIGHT;
+                                    next->walls = next->walls ^ LEFT;
+                                }
                             }
                             else if (wall == BOTTOM)
                             {
-                                current->walls = current->walls ^ BOTTOM;
                                 Cell *next = &cells[getIndex(current->x, current->y + 1)];
-                                next->walls = next->walls ^ TOP;
+                                if (next->visited)
+                                {
+                                    current->walls = current->walls ^ BOTTOM;
+                                    next->walls = next->walls ^ TOP;
+                                }
                             }
                             else if (wall == LEFT)
                             {
-                                current->walls = current->walls ^ LEFT;
                                 Cell *next = &cells[getIndex(current->x - 1, current->y)];
-                                next->walls = next->walls ^ RIGHT;
+                                if (next->visited)
+                                {
+                                    current->walls = current->walls ^ LEFT;
+                                    next->walls = next->walls ^ RIGHT;
+                                }
                             }
                         }
                     }
@@ -199,7 +215,8 @@ public:
             {
                 break;
             }
-            this->display();
+            // this->display(current->x, current->y);
+            // usleep(100000);
         }
     }
 
