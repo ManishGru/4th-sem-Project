@@ -14,6 +14,5 @@ class Texture{
     void Bind();
     void Unbind();
     void Delete();
-
 };
 #endif

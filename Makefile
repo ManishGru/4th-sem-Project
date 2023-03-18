@@ -11,6 +11,7 @@ src/stb.cpp \
 src/Texture.cpp \
 src/VAO.cpp \
 src/VBO.cpp \
+src/cube.cpp \
 main.cpp
 
 all: $(CXX_SOURCES)

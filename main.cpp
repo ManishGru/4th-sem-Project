@@ -23,6 +23,7 @@
 #include "inc/EBO.h"
 #include "inc/Texture.h"
 #include "inc/Camera.h"
+#include "inc/cube.h"
 
 #define width 800
 #define height 800
@@ -30,22 +31,40 @@
 #define _dijkstra
 int rows = 13, cols = 41;
 
-
-//vertices for pyramid
+// vertices for pyramid
 GLfloat vertices[] = {
-    -0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44, 0.0f, 0.0f,
-    -0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44, 5.0f, 0.0f,
-    0.5f, 0.0f, -0.5f, 0.83f, 0.70f, 0.44, 0.0f, 0.0f,
-    0.5f, 0.0f, 0.5f, 0.83f, 0.70f, 0.44, 5.0f, 0.0f,
-    0.0f, 0.8f, 0.0f, 0.83f, 0.70f, 0.44, 2.5f, 5.0f};
-//index of every vertix of the pyramid
+    -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, // 0
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // 1
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // 2
+    0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  // 3
+    -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // 4
+    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,   // 5
+    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,    // 6
+    0.5f, 0.5f, -0.5f, 0.0f, 1.0f,   // 7
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // 0
+    -0.5f, -0.5f, 0.5f, 0.0f, 1.0f,  // 1
+    0.5f, -0.5f, 0.5f, 1.0f, 1.0f,   // 2
+    0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // 3
+    -0.5f, 0.5f, -0.5f, 0.0f, 0.0f,  // 4
+    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,   // 5
+    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,    // 6
+    0.5f, 0.5f, -0.5f, 1.0f, 0.0f,   // 7
+};
+// index of every vertix of the pyramid
 GLuint indices[] = {
-    0, 1, 2,
-    0, 2, 3,
-    0, 1, 4,
-    1, 2, 4,
-    2, 3, 4,
-    3, 0, 4};
+    0, 4, 1,    // left
+    1, 4, 5,    // left
+    0, 4, 3,    // bottom
+    4, 3, 7,    // bottom
+    2, 3, 6,    // left
+    3, 6, 7,    // left
+    1, 2, 6,    // top
+    1, 5, 6,    // top
+    12, 13, 14, // back
+    12, 14, 15, // back
+    8, 10, 11,  // front
+    9, 8, 10    // front
+};
 
 int main()
 {
@@ -94,7 +113,7 @@ int main()
 #endif
 
     refresh();
-    getch();
+    // getch();
     endwin();
     GLFWwindow *window = glfwCreateWindow(width, height, "Maze Solver", NULL, NULL);
     if (window == NULL)
@@ -110,48 +129,52 @@ int main()
     glViewport(0, 0, width, height); // tell opengl the size of the view port
 
     // window creation
-    Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag");//Compiles and links the vertex and fragment shaders
+    Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag"); // Compiles and links the vertex and fragment shaders
+    Cube cube(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
+    Cube cube1(0.0f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f);
+    Cube cube2(0.5f, -0.5f, -0.0f, 0.3f, 0.2f, 0.4f);
+    Cube cube3(0.0f, 1.0f, 0.0f, 0.5f, 0.7f, 0.5f);
 
-    VAO VAO1;
-    VAO1.Bind();
 
-    VBO VBO1(vertices, sizeof(vertices));
-    EBO EBO1(indices, sizeof(indices));
+    cube.linkAttribs();
+    cube1.linkAttribs();
+    cube2.linkAttribs();
+    cube3.linkAttribs();
 
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    VAO1.Unbind();
-    VBO1.Unbind();
-    EBO1.Unbind();
 
-    Texture saringan("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    saringan.texUnit(shaderProgram, "tex0", 0);
+    cube.Unbind();
+    cube1.Unbind();
+    cube2.Unbind();
+    cube3.Unbind();
 
-    float rotation = 0.0f;
-    double prevTime = glfwGetTime();
-
+    Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    wall.texUnit(shaderProgram, "tex0", 0);
+    cube.linkTexture(wall);
+    cube1.linkTexture(wall);
+    cube2.linkTexture(wall);
+    cube3.linkTexture(wall);
     glEnable(GL_DEPTH_TEST);
-    Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+    Camera camera(width, height, glm::vec3(2.0f, 2.0f, 2.0f), 45.0f, 0.1f, 100.0f);
     // working loop and breaks if the window is closed
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.3f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shaderProgram.Activate();
+        camera.Matrix(shaderProgram, "camMatrix");
+        cube.render(*window, shaderProgram, camera);
+        cube1.render(*window, shaderProgram, camera);
+        cube2.render(*window, shaderProgram, camera);
+        cube3.render(*window, shaderProgram, camera);
         camera.Inputs(window);
-        camera.Matrix(45.0f, 0.1, 100.0f, shaderProgram, "camMatrix");
-        saringan.Bind();
-        VAO1.Bind();
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
-
         glfwPollEvents();
     }
-    VAO1.Delete();
-    VBO1.Delete();
-    EBO1.Delete();
-    saringan.Delete();
+    cube.Delete();
+    cube1.Delete();
+    cube2.Delete();
+    cube3.Delete();
+    wall.Delete();
     shaderProgram.Delete();
     glfwDestroyWindow(window); // destroying the window in the end of the program
     glfwTerminate();

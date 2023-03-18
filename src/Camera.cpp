@@ -1,13 +1,16 @@
 #include "../inc/Camera.h"
 
-Camera::Camera(int width, int height, glm::vec3 position)
+Camera::Camera(int width, int height, glm::vec3 position,float FOVdeg, float nearPlane , float farPlane)
 {
     Camera::width = width;
     Camera::height = height;
     Position = position;
+    Camera::FOVdeg = FOVdeg;
+    Camera::nearPlane = nearPlane;
+    Camera::farPlane = farPlane;
 }
 
-void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader &shader, const char *uniform)
+void Camera::Matrix(Shader &shader, const char *uniform)
 {
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
