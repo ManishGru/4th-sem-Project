@@ -24,8 +24,8 @@
 #include "../inc/Camera.h"
 #include "../inc/cube.h"
 
-#define WIDTH 1000
-#define HEIGHT 1000
+#define WIDTH 1920
+#define HEIGHT 1080
 
 int last = 0;
 int mx, my;
@@ -327,7 +327,16 @@ public:
         ground.linkTexture(groundtex);
 
         glEnable(GL_DEPTH_TEST);
-        Camera camera(WIDTH, HEIGHT, glm::vec3(0.0f, 2.0f, 2.0f), 45.0f, 0.1f, 100.0f);
+
+        // for some maze viewing thingy
+        //  Camera camera(WIDTH, HEIGHT, glm::vec3(-10.0f, 2.0f, -10.0f), 45.0f, 0.1f, 100.0f);
+        //  camera.Rotate(180+45,glm::vec3(0.0f,1.0f,0.f));
+        // for playing the maze game
+        Camera camera(WIDTH, HEIGHT, glm::vec3((float)2 * (startcell->x) + 1.0f, -4.5f, (float)2 * (startcell->y) + 1.0f), 45.0f, 0.1f, 100.0f);
+        if (!startcell->checkWall(RIGHT))
+            camera.Rotate(-90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+        else
+            camera.Rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         // working loop and breaks if the window is closed
         while (!glfwWindowShouldClose(window))

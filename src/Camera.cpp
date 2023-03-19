@@ -1,6 +1,6 @@
 #include "../inc/Camera.h"
 
-Camera::Camera(int width, int height, glm::vec3 position,float FOVdeg, float nearPlane , float farPlane)
+Camera::Camera(int width, int height, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
 {
     Camera::width = width;
     Camera::height = height;
@@ -22,29 +22,21 @@ void Camera::Matrix(Shader &shader, const char *uniform)
 
 void Camera::Inputs(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
-        Position += speed * Orientation;
+        Position += speed * glm::vec3(Orientation.x, 0, Orientation.z);
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         Position += speed * -glm::normalize(glm::cross(Orientation, Yaxis));
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
-        Position += speed * -Orientation;
+        Position += speed * -glm::vec3(Orientation.x, 0, Orientation.z);
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         Position += speed * glm::normalize(glm::cross(Orientation, Yaxis));
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
-        Position += speed * Yaxis;
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-    {
-        Position += speed * -Yaxis;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
@@ -97,4 +89,17 @@ void Camera::Inputs(GLFWwindow *window)
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         firstClick = true;
     }
+    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+    {
+        // if (Position != glm::vec3(-10.0f, 2.0f, -10.0f))
+        // {
+            Position = glm::vec3(-10.0f, 2.0f, -10.0f);
+            Orientation = glm::vec3(1.0f,0.0f,1.0f);
+            // Rotate(180 + 45, Yaxis);
+        // }
+    }
+}
+void Camera::Rotate(GLfloat degree, glm::vec3 axis)
+{
+    Orientation = glm::rotate(Orientation, glm::radians(degree), axis);
 }

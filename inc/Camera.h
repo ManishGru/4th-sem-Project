@@ -27,6 +27,7 @@ public:
     Camera(int width, int height, glm::vec3 position,float FOVdeg, float nearPlane , float farPlane);
     void Matrix(Shader& shader , const char* uniform);
     void Inputs(GLFWwindow* window);
+    void Rotate(GLfloat degrees, glm::vec3 axis);
 };
 
 #endif
