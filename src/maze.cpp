@@ -7,12 +7,28 @@
 #include <cstdlib>
 #include <unistd.h>
 
-
 #include "cell.cpp"
+
+#include "../inc/glad.h"
+#include <GLFW/glfw3.h>
+
+#include "../inc/glm/glm.hpp"
+#include "../inc/glm/gtc/matrix_transform.hpp"
+#include "../inc/glm/gtc/type_ptr.hpp"
+#include "../inc/stb_image.h"
+#include "../inc/shaderClass.h"
+#include "../inc/VAO.h"
+#include "../inc/VBO.h"
+#include "../inc/EBO.h"
+#include "../inc/Texture.h"
+#include "../inc/Camera.h"
+#include "../inc/cube.h"
+
+#define WIDTH 1920
+#define HEIGHT 1080
 
 int last = 0;
 int mx, my;
-
 class Maze
 {
 public:
@@ -147,7 +163,7 @@ public:
                 current = st[st.size() - 1];                         // get last cell as the current cell
                 st.pop_back();                                       // remove the last cell
                 float randomnum = (float)random() / (float)RAND_MAX; // get random number to remmove wall from the current cell
-                if (randomnum > 0.85)                                 // remove wall randomly 0.1 times
+                if (randomnum > 0.85)                                // remove wall randomly 0.1 times
                 {
                     std::vector<uint8_t> walls; // stores the walls of current cell
                     // check the wall and push it into the array
@@ -267,6 +283,65 @@ public:
         endcell = &cells[cells.size() - 1];
         endcell->isEnd = true;
         this->generateMaze();
+    }
+    int display3d()
+    {
+        // GLFW initialization
+        glfwInit();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        // widow creation
+        GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Maze Solver", NULL, NULL);
+        if (window == NULL)
+        {
+            // creation failed
+            std::cout << "Failed to create Window" << std::endl;
+            glfwTerminate();
+            return -1;
+        }
+        glfwMakeContextCurrent(window); // tells glfw to make the window part of the current context
+        // context: state of the opengl , OpenGL is a state machine
+        gladLoadGL();                    // load needed configuration for openGL
+        glViewport(0, 0, WIDTH, HEIGHT); // tell opengl the size of the view port
+
+        Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag"); // Compiles and links the vertex and fragment shaders
+
+        Cube ground(-500.0f,-5.0f,-500.0f,1000.0f,.1f,1000.0f);
+
+        ground.linkAttribs();
+        ground.Unbind();
+
+        // Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+        // wall.texUnit(shaderProgram, "tex0", 0);
+        
+        //create the texture in from the resoures tab
+        Texture groundtex("./resources/concrete.png",GL_TEXTURE_2D,GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+        groundtex.texUnit(shaderProgram,"tex0",0);
+
+        ground.linkTexture(groundtex);
+
+        glEnable(GL_DEPTH_TEST);
+        Camera camera(WIDTH, HEIGHT, glm::vec3(0.0f, 2.0f, 2.0f), 60.0f, 0.1f, 100.0f);
+
+        // working loop and breaks if the window is closed
+        while (!glfwWindowShouldClose(window))
+        {
+            glClearColor(0.1f, 0.3f, 0.8f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            shaderProgram.Activate();
+            camera.Matrix(shaderProgram, "camMatrix");
+            ground.render();
+            camera.Inputs(window);
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        }
+        ground.Delete();    
+        // wall.Delete();
+        groundtex.Delete();
+        shaderProgram.Delete();
+        glfwDestroyWindow(window); // destroying the window in the end of the program
+        glfwTerminate();
     }
 };
 #endif

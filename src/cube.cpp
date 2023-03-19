@@ -16,6 +16,10 @@ Cube::Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h)
         vertices[3 * i + 1] += y;
         vertices[3 * i + 2] += z;
     }
+    GLfloat largest = (w>b)?((w>h)?w:h):((b>h)?b:h);
+    for(int i = 0 ;i< sizeof(texCoords)/sizeof(texCoords[0]);i++){
+        texCoords[i] = texCoords[i]*largest/10;
+    }
     cubeVAO = new VAO;
     cubeVAO->Bind();
     cubeVBO = new VBO(vertices, sizeof(vertices));
@@ -35,10 +39,8 @@ void Cube::Unbind()
     cubeEBO->Unbind();
 }
 
-void Cube::render(GLFWwindow &window, Shader &shader, Camera &camera)
+void Cube::render()
 {
-    // shader.Activate();
-    // camera.Matrix(shader, "camMatrix");
     texture->Bind();
     cubeVAO->Bind();
     linkAttribs();

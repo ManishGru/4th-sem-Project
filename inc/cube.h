@@ -72,7 +72,7 @@ public:
     void linkAttribs();
     void Unbind();
     void linkTexture(Texture &texture);
-    void render(GLFWwindow &window, Shader &shader, Camera &camera);
+    void render();
     void Delete();
 };
 #endif

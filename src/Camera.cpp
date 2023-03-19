@@ -15,7 +15,7 @@ void Camera::Matrix(Shader &shader, const char *uniform)
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    view = glm::lookAt(Position, Position + Orientation, Up); // form where to look at, what to look at , up vector
+    view = glm::lookAt(Position, Position + Orientation, Yaxis); // form where to look at, what to look at , up vector
     projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));
 }
@@ -28,7 +28,7 @@ void Camera::Inputs(GLFWwindow *window)
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        Position += speed * -glm::normalize(glm::cross(Orientation, Up));
+        Position += speed * -glm::normalize(glm::cross(Orientation, Yaxis));
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
@@ -36,15 +36,15 @@ void Camera::Inputs(GLFWwindow *window)
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        Position += speed * glm::normalize(glm::cross(Orientation, Up));
+        Position += speed * glm::normalize(glm::cross(Orientation, Yaxis));
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
     {
-        Position += speed * Up;
+        Position += speed * Yaxis;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
     {
-        Position += speed * -Up;
+        Position += speed * -Yaxis;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
@@ -78,16 +78,16 @@ void Camera::Inputs(GLFWwindow *window)
         float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 
         // Calculates upcoming vertical change in the Orientation
-        glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(rotX), glm::normalize(glm::cross(Orientation, Up)));
+        glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(rotX), glm::normalize(glm::cross(Orientation, Yaxis)));
 
         // Decides whether or not the next vertical Orientation is legal or not
-        if (fabs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+        if (fabs(glm::angle(newOrientation, Yaxis) - glm::radians(90.0f)) <= glm::radians(85.0f))
         {
             Orientation = newOrientation;
         }
 
         // Rotates the Orientation left and right
-        Orientation = glm::rotate(Orientation, glm::radians(rotY), Up);
+        Orientation = glm::rotate(Orientation, glm::radians(rotY), Yaxis);
 
         // Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
         glfwSetCursorPos(window, (width / 2), (height / 2));
