@@ -18,7 +18,7 @@ Cube::Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h)
     }
     GLfloat largest = (w>b)?((w>h)?w:h):((b>h)?b:h);
     for(int i = 0 ;i< sizeof(texCoords)/sizeof(texCoords[0]);i++){
-        texCoords[i] = texCoords[i]*largest/10;
+        texCoords[i] = texCoords[i]*largest;
     }
     cubeVAO = new VAO;
     cubeVAO->Bind();

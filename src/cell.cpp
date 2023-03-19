@@ -2,6 +2,7 @@
 #define __CELL__
 #include <iostream>
 #include <ncurses.h>
+#include "../inc/cube.h"
 // #include "./maze.cpp"
 #define TOP 0X01
 #define LEFT 0X02
@@ -18,6 +19,7 @@ public:
     bool isEnd = false;
     bool isOpen = false;
     bool isPath = false;
+    std::vector<Cube> cubes;
     // bool neighbours = false;
     // bool dijsktrashortPath = false;
     // std::vector<Cell*> itsneighbours;
@@ -213,6 +215,37 @@ public:
     bool operator==(const Cell &rhs) const
     {
         return x == rhs.x && y == rhs.y;
+    }
+    void init3d(Texture &texture)
+    {
+        cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 0.0f, 0.3f, 1.0f, 0.3f));
+        if (checkWall(TOP))
+            cubes.push_back(Cube(2 * x + 0.3f, -5.0f, 2 * y + 0.0f, 1.4f, 1.0f, 0.3f)); // top wall
+        cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 0.0f, 0.3f, 1.0f, 0.3f));
+        if (checkWall(LEFT))
+            cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 0.3f, 0.3f, 1.0f, 1.4f)); // left wall
+        cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 1.7f, 0.3f, 1.0f, 0.3f));
+        if (checkWall(BOTTOM))
+            cubes.push_back(Cube(2 * x + 0.3f, -5.0f, 2 * y + 1.7f, 1.4f, 1.0f, 0.3f)); // bottom wall
+        cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 1.7f, 0.3f, 1.0f, 0.3f));
+        if (checkWall(RIGHT))
+            cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 0.3f, 0.3f, 1.0f, 1.4f)); // right wall
+        for (auto &cuboid : cubes)
+        {
+            cuboid.linkAttribs();
+            cuboid.Unbind();
+            cuboid.linkTexture(texture);
+        }
+    }
+    void display3d()
+    {
+        for (auto &cuboid : cubes)
+            cuboid.render();
+    }
+    void delete3d()
+    {
+        for (auto &cuboid : cubes)
+            cuboid.Delete();
     }
 };
 

@@ -68,6 +68,7 @@ public:
     VBO *texVBO;
     EBO *cubeEBO;
     Texture *texture;
+    Cube(){}
     Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h);
     void linkAttribs();
     void Unbind();

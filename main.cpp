@@ -14,7 +14,7 @@
 
 // #define Astric
 #define _dijkstra
-int rows = 13, cols = 41;
+int rows = 25, cols = 25;
 
 
 int main()

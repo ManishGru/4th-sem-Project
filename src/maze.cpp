@@ -24,8 +24,8 @@
 #include "../inc/Camera.h"
 #include "../inc/cube.h"
 
-#define WIDTH 1920
-#define HEIGHT 1080
+#define WIDTH 1000
+#define HEIGHT 1000
 
 int last = 0;
 int mx, my;
@@ -307,22 +307,27 @@ public:
 
         Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag"); // Compiles and links the vertex and fragment shaders
 
-        Cube ground(-500.0f,-5.0f,-500.0f,1000.0f,.1f,1000.0f);
+        Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f);
 
         ground.linkAttribs();
         ground.Unbind();
 
-        // Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-        // wall.texUnit(shaderProgram, "tex0", 0);
-        
-        //create the texture in from the resoures tab
-        Texture groundtex("./resources/concrete.png",GL_TEXTURE_2D,GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-        groundtex.texUnit(shaderProgram,"tex0",0);
+        Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+        wall.texUnit(shaderProgram, "tex0", 0);
+
+        for (auto &cell : cells)
+        {
+            cell.init3d(wall);
+        }
+        // cells[0].init3d(wall);
+        // create the texture in from the resoures tab
+        Texture groundtex("./resources/grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+        groundtex.texUnit(shaderProgram, "tex0", 0);
 
         ground.linkTexture(groundtex);
 
         glEnable(GL_DEPTH_TEST);
-        Camera camera(WIDTH, HEIGHT, glm::vec3(0.0f, 2.0f, 2.0f), 60.0f, 0.1f, 100.0f);
+        Camera camera(WIDTH, HEIGHT, glm::vec3(0.0f, 2.0f, 2.0f), 45.0f, 0.1f, 100.0f);
 
         // working loop and breaks if the window is closed
         while (!glfwWindowShouldClose(window))
@@ -332,13 +337,23 @@ public:
             shaderProgram.Activate();
             camera.Matrix(shaderProgram, "camMatrix");
             ground.render();
+            for (auto &cell : cells)
+            {
+                cell.display3d();
+            }
+            // cells[0].display3d();
             camera.Inputs(window);
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
-        ground.Delete();    
-        // wall.Delete();
+        ground.Delete();
+        wall.Delete();
         groundtex.Delete();
+        for (auto &cell : cells)
+        {
+            cell.delete3d();
+        }
+        // cells[0].delete3d();
         shaderProgram.Delete();
         glfwDestroyWindow(window); // destroying the window in the end of the program
         glfwTerminate();

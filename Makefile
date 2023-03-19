@@ -1,6 +1,6 @@
 TARGET = MAZESOLVER
 CXX= g++
-CXXFLAGS= -lncurses -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+CXXFLAGS= -lncurses -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl -static
 
 CXX_SOURCES = \
 src/Camera.cpp \
