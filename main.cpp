@@ -7,7 +7,7 @@
 
 // #define Astric
 #define _dijkstra
-int rows = 13, cols = 41;
+int rows = 13, cols = 41; // 40 & 190
 
 #include "./bot.cpp"
 #include "./astar.cpp"

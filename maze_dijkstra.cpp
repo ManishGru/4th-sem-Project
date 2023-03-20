@@ -28,10 +28,10 @@ Cell *dijkstra::selectMinCell(std::vector<bool> &processed)
     Cell *minCell;
     for (int i = 0; i < x * y - 1; i++)
     {
-        if (processed[i] == false && g[0][i] <= minimum)
+        if (processed[i] == false && g[maze.getIndex(maze.startcell->x, maze.startcell->y)][i] <= minimum)
         {
             minCell = &maze.cells[i];
-            minimum = g[0][i];
+            minimum = g[maze.getIndex(maze.startcell->x, maze.startcell->y)][i];
         }
     }
     return minCell;
@@ -50,7 +50,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
             Cell *top = &maze.cells[topidx];
             top->isOpen = true;
             top->display();
-            usleep(2000);
+            usleep(200);
             g[currentidx][topidx] = 1;
             (*neighbours).push_back(top);
         }
@@ -64,7 +64,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
             Cell *bottom = &maze.cells[bottomidx];
             bottom->isOpen = true;
             bottom->display();
-            usleep(2000);
+            usleep(200);
             g[currentidx][bottomidx] = 1;
             (*neighbours).push_back(bottom);
         }
@@ -78,7 +78,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
             Cell *right = &maze.cells[rightidx];
             right->isOpen = true;
             right->display();
-            usleep(2000);
+            usleep(200);
             g[currentidx][rightidx] = 1;
             (*neighbours).push_back(right);
         }
@@ -92,7 +92,7 @@ void dijkstra::findneighbour(std::vector<Cell *> *neighbours, Cell *current)
             Cell *left = &maze.cells[leftidx];
             left->isOpen = true;
             left->display();
-            usleep(2000);
+            usleep(200);
             g[currentidx][leftidx] = 1;
             (*neighbours).push_back(left);
         }
@@ -108,12 +108,15 @@ void dijkstra::shortPath()
     int parentCell[total_cells] = {-1};
 
     // for debugging
-    // getmaxyx(stdscr, my, mx);
-    // last = 0;
+    getmaxyx(stdscr, my, mx);
+    last = 0;
 
-    g[0][0] = 0;
+    g[maze.getIndex(maze.startcell->x, maze.startcell->y)][maze.getIndex(maze.startcell->x, maze.startcell->y)] = 0;
     Cell *U;
     U = maze.startcell;
+
+    // int idxu = maze.getIndex(U->x, U->y);
+    // mvprintw(my - last - 1, 0, "%d", idxu);
 
     bool isLoop = false, selected = false;
     int count = 0;
@@ -122,6 +125,8 @@ void dijkstra::shortPath()
     {
         std::vector<Cell *> neighbours;
         U = selectMinCell(processed);
+        Cell start;
+
         int Uidx = maze.getIndex(U->x, U->y);
 
         findneighbour(&neighbours, U);
@@ -141,15 +146,15 @@ void dijkstra::shortPath()
 
             if ((int)processed[neighidx] == true)
             {
-                if ((g[0][Uidx] + 1) < g[0][neighidx])
+                if ((g[maze.getIndex(maze.startcell->x, maze.startcell->y)][Uidx] + 1) < g[maze.getIndex(maze.startcell->x, maze.startcell->y)][neighidx])
                 {
-                    g[0][neighidx] = g[0][Uidx] + 1;
+                    g[maze.getIndex(maze.startcell->x, maze.startcell->y)][neighidx] = g[maze.getIndex(maze.startcell->x, maze.startcell->y)][Uidx] + 1;
 
                     parentCell[neighidx] = Uidx;
                 }
                 continue;
             }
-            g[0][neighidx] = g[0][Uidx] + 1;
+            g[maze.getIndex(maze.startcell->x, maze.startcell->y)][neighidx] = g[maze.getIndex(maze.startcell->x, maze.startcell->y)][Uidx] + 1;
             parentCell[neighidx] = Uidx;
         }
         processed[Uidx] = true;
@@ -161,8 +166,8 @@ void dijkstra::shortPath()
     }
     int displayCellidx;
     Cell displayCell;
-    int ptIdx = (int)parentCell[total_cells - 1];
-    for (int i = (int)g[0][total_cells - 1]; i > 0; --i)
+    int ptIdx = (int)parentCell[maze.getIndex(maze.endcell->x, maze.endcell->y)];
+    for (int i = (int)g[maze.getIndex(maze.startcell->x, maze.startcell->y)][maze.getIndex(maze.endcell->x, maze.endcell->y)]; i > 0; --i)
     {
         if (ptIdx != -1)
         {
@@ -171,6 +176,10 @@ void dijkstra::shortPath()
             displayCell.isPath = true;
             displayCell.display();
             ptIdx = (int)parentCell[ptIdx];
+            if (ptIdx == maze.getIndex(maze.startcell->x, maze.startcell->y))
+            {
+                break;
+            }
         }
     }
 }

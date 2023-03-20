@@ -141,7 +141,7 @@ public:
                 current = st[st.size() - 1];                         // get last cell as the current cell
                 st.pop_back();                                       // remove the last cell
                 float randomnum = (float)random() / (float)RAND_MAX; // get random number to remmove wall from the current cell
-                if (randomnum > 0.9)                                 // remove wall randomly 0.1 times
+                if (randomnum > 0.5)                                 // remove wall randomly 0.1 times
                 {
                     std::vector<uint8_t> walls; // stores the walls of current cell
                     // check the wall and push it into the array
