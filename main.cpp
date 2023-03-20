@@ -60,7 +60,7 @@ int main()
 #endif
 
     refresh();
-    // getch();
+    getch();
     endwin();
     maze.display3d();
     return 0;
