@@ -12,17 +12,21 @@ int rows = 13, cols = 41;
 #include "./bot.cpp"
 #include "./astar.cpp"
 #include <unistd.h>
+#include "./floodfill.cpp"
 int main()
 {
     std::srand(std::time(nullptr));
     initscr();
     raw();
+    Cell cell(0,0);
     Maze maze(rows, cols);
 
     system("clear");
     start_color();
 
     maze.generateMaze();
+    floodfill flood;
+    flood.floodfillShortestPath(&maze,&cell);
     maze.display();
     refresh();
 
