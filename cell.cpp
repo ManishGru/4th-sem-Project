@@ -7,8 +7,7 @@
 #define LEFT 0X02
 #define BOTTOM 0X04
 #define RIGHT 0X08
-class Cell
-{
+class Cell{
 public:
     int x;
     int y;
@@ -18,6 +17,7 @@ public:
     bool isEnd = false;
     bool isOpen = false;
     bool isPath = false;
+    uint8_t value;
     // bool neighbours = false;
     // bool dijsktrashortPath = false;
     // std::vector<Cell*> itsneighbours;
