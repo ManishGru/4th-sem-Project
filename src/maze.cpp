@@ -284,7 +284,7 @@ public:
         endcell->isEnd = true;
         this->generateMaze();
     }
-    int display3d()
+    void display3d()
     {
         // GLFW initialization
         glfwInit();
@@ -298,19 +298,42 @@ public:
             // creation failed
             std::cout << "Failed to create Window" << std::endl;
             glfwTerminate();
-            return -1;
+            return;
         }
         glfwMakeContextCurrent(window); // tells glfw to make the window part of the current context
         // context: state of the opengl , OpenGL is a state machine
         gladLoadGL();                    // load needed configuration for openGL
         glViewport(0, 0, WIDTH, HEIGHT); // tell opengl the size of the view port
 
-        Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag"); // Compiles and links the vertex and fragment shaders
+        Shader shaderProgram("./shaders/lightshaders/default.vert", "./shaders/lightshaders/default.frag"); // Compiles and links the vertex and fragment shaders
 
         Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f);
 
         ground.linkAttribs();
         ground.Unbind();
+
+        Cube lightsource(5.0f, 5.0f, 5.0f, 1.0f, 1.0f, 1.0f);
+        lightsource.sourceLink();
+        lightsource.Unbind();
+
+        Shader lightShader("./shaders/lightshaders/light.vert", "./shaders/lightshaders/light.frag");
+
+        glm::vec4 lightColor = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+        glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+        glm::mat4 lightModel = glm::mat4(1.0f);
+        lightModel = glm::translate(lightModel, lightPos);
+
+        glm::vec3 groundpos = glm::vec3(-500.0f, -5.1f, -500.0f);
+        glm::mat4 groundModel = glm::mat4(1.0f);
+        groundModel = glm::translate(groundModel, groundpos);
+
+        lightShader.Activate();
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+        glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+
+        shaderProgram.Activate();
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightcolor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightpos"), lightPos.x, lightPos.y, lightPos.z);
 
         Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
         wall.texUnit(shaderProgram, "tex0", 0);
@@ -319,7 +342,7 @@ public:
         {
             cell.init3d(wall);
         }
-        // cells[0].init3d(wall);
+
         // create the texture in from the resoures tab
         Texture groundtex("./resources/grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
         groundtex.texUnit(shaderProgram, "tex0", 0);
@@ -338,14 +361,22 @@ public:
         else
             camera.Rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+
         // working loop and breaks if the window is closed
-        while (!glfwWindowShouldClose(window))
+        while (!glfwWindowShouldClose(window) && (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS))
         {
             glClearColor(0.1f, 0.3f, 0.8f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            lightShader.Activate();
+            camera.Matrix(lightShader, "camMatrix");
+
             shaderProgram.Activate();
             camera.Matrix(shaderProgram, "camMatrix");
             ground.render();
+            lightsource.sourceRender();
+
             for (auto &cell : cells)
             {
                 cell.display3d();
@@ -363,7 +394,6 @@ public:
             cell.delete3d();
         }
         // cells[0].delete3d();
-        shaderProgram.Delete();
         glfwDestroyWindow(window); // destroying the window in the end of the program
         glfwTerminate();
     }

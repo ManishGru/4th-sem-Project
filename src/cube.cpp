@@ -16,14 +16,16 @@ Cube::Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h)
         vertices[3 * i + 1] += y;
         vertices[3 * i + 2] += z;
     }
-    GLfloat largest = (w>b)?((w>h)?w:h):((b>h)?b:h);
-    for(int i = 0 ;i< sizeof(texCoords)/sizeof(texCoords[0]);i++){
-        texCoords[i] = texCoords[i]*largest;
+    GLfloat largest = (w > b) ? ((w > h) ? w : h) : ((b > h) ? b : h);
+    for (int i = 0; i < sizeof(texCoords) / sizeof(texCoords[0]); i++)
+    {
+        texCoords[i] = texCoords[i] * largest;
     }
     cubeVAO = new VAO;
     cubeVAO->Bind();
     cubeVBO = new VBO(vertices, sizeof(vertices));
     texVBO = new VBO(texCoords, sizeof(texCoords));
+    normalVBO = new VBO(normal, sizeof(normal));
     cubeEBO = new EBO(indices, sizeof(indices));
 }
 
@@ -31,11 +33,14 @@ void Cube::linkAttribs()
 {
     cubeVAO->LinkAttrib(*cubeVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
     cubeVAO->LinkAttrib(*texVBO, 1, 2, GL_FLOAT, 2 * sizeof(float), (void *)0);
+    cubeVAO->LinkAttrib(*normalVBO, 2, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void *)0);
 }
 void Cube::Unbind()
 {
     cubeVAO->Unbind();
     cubeVBO->Unbind();
+    texVBO->Unbind();
+    normalVBO->Unbind();
     cubeEBO->Unbind();
 }
 
@@ -47,6 +52,17 @@ void Cube::render()
     glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
     cubeVAO->Unbind();
     texture->Unbind();
+}
+void Cube::sourceLink()
+{
+    cubeVAO->LinkAttrib(*cubeVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
+    
+}
+void Cube::sourceRender()
+{
+    cubeVAO->Bind();
+    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+    cubeVAO->Unbind();
 }
 void Cube::Delete()
 {
