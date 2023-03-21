@@ -68,11 +68,14 @@ public:
     VBO *texVBO;
     EBO *cubeEBO;
     Texture *texture;
-    Cube(){}
+    Cube() {}
     Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h);
     void linkAttribs();
+    void Bind();
     void Unbind();
     void linkTexture(Texture &texture);
+    void translate(glm::vec3);
+
     void render();
     void Delete();
 };

@@ -24,10 +24,18 @@ public:
     int height;
     float speed = 0.01f;
     float sensitivity = 100.0f;
-    Camera(int width, int height, glm::vec3 position,float FOVdeg, float nearPlane , float farPlane);
-    void Matrix(Shader& shader , const char* uniform);
-    void Inputs(GLFWwindow* window);
+    glm::mat4 view;
+    glm::mat4 projection;
+  
+    Camera(int width, int height, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane);
+    void Matrix(Shader &shader, const char *uniform);
+    void Inputs(GLFWwindow *window);
     void Rotate(GLfloat degrees, glm::vec3 axis);
+
+    glm::vec3 getPos();
+    glm::mat4 get_view();
+    glm::mat4 get_projection();
+    void change_orientation();
 };
 
 #endif

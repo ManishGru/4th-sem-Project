@@ -2,18 +2,19 @@
 
 Camera::Camera(int width, int height, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
 {
-    Camera::width = width;
-    Camera::height = height;
+    this->width = width;
+    this->height = height;
     Position = position;
-    Camera::FOVdeg = FOVdeg;
-    Camera::nearPlane = nearPlane;
-    Camera::farPlane = farPlane;
+    this->FOVdeg = FOVdeg;
+    this->nearPlane = nearPlane;
+    this->farPlane = farPlane;
 }
 
 void Camera::Matrix(Shader &shader, const char *uniform)
 {
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
+    // std::cout << Orientation.x << "  " << Orientation.y << "  " << Orientation.z << std::endl;
+    // std::cout << Position.x << "  " << Position.y << "  " << Position.z << std::endl;
+
 
     view = glm::lookAt(Position, Position + Orientation, Yaxis); // form where to look at, what to look at , up vector
     projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);
@@ -93,13 +94,43 @@ void Camera::Inputs(GLFWwindow *window)
     {
         // if (Position != glm::vec3(-10.0f, 2.0f, -10.0f))
         // {
-            Position = glm::vec3(-10.0f, 2.0f, -10.0f);
-            Orientation = glm::vec3(1.0f,0.0f,1.0f);
-            // Rotate(180 + 45, Yaxis);
+        Position = glm::vec3(-10.0f, 2.0f, -10.0f);
+        Orientation = glm::vec3(1.0f, 0.0f, 1.0f);
+        // Rotate(180 + 45, Yaxis);
         // }
     }
 }
 void Camera::Rotate(GLfloat degree, glm::vec3 axis)
 {
     Orientation = glm::rotate(Orientation, glm::radians(degree), axis);
+}
+
+void Camera::change_orientation()
+{
+    Orientation = glm::vec3(0.0f, -4.0f, 0.01f);
+}
+
+void display_4x4(std::string tag, glm::mat4 m4)
+{
+    std::cout << tag << '\n';
+    for (int col = 0; col < 4; ++col)
+    {
+        std::cout << "| ";
+        for (int row = 0; row < 4; ++row)
+        {
+            std::cout << m4[row][col] << '\t';
+        }
+        std::cout << '\n';
+    }
+    std::cout << '\n';
+}
+
+glm::vec3 Camera::getPos(){
+    return Position;
+}
+glm::mat4 Camera::get_view(){
+    return view;
+}
+glm::mat4 Camera::get_projection(){
+    return projection;
 }

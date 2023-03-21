@@ -304,6 +304,8 @@ public:
         // context: state of the opengl , OpenGL is a state machine
         gladLoadGL();                    // load needed configuration for openGL
         glViewport(0, 0, WIDTH, HEIGHT); // tell opengl the size of the view port
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag"); // Compiles and links the vertex and fragment shaders
 
@@ -332,18 +334,34 @@ public:
         //  Camera camera(WIDTH, HEIGHT, glm::vec3(-10.0f, 2.0f, -10.0f), 45.0f, 0.1f, 100.0f);
         //  camera.Rotate(180+45,glm::vec3(0.0f,1.0f,0.f));
         // for playing the maze game
+
         Camera camera(WIDTH, HEIGHT, glm::vec3((float)2 * (startcell->x) + 1.0f, -4.5f, (float)2 * (startcell->y) + 1.0f), 45.0f, 0.1f, 100.0f);
         if (!startcell->checkWall(RIGHT))
             camera.Rotate(-90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         else
             camera.Rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
+        Cube bot(camera.getPos().x - 0.5f, camera.getPos().y, camera.getPos().z - 0.5f, 0.8f, 0.8f, 0.8f);
+        bot.translate(glm::vec3(10.0f, 0.0f, 10.0f));
+
+        bot.linkAttribs();
+        bot.Unbind();
+        Texture botex("./resources/soil.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+        botex.texUnit(shaderProgram, "tex0", 0);
+        bot.linkTexture(botex);
+        glm::mat4 bodel = glm::mat4(1.0f);
+        glm::mat4 mvp;
+
+        Camera new_camera(WIDTH, HEIGHT, glm::vec3(-27, 110.0f, 60), 61.0f, 0.1f, 120.0f);
+        new_camera.change_orientation();
         // working loop and breaks if the window is closed
-        while (!glfwWindowShouldClose(window))
+        while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
         {
             glClearColor(0.1f, 0.3f, 0.8f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             shaderProgram.Activate();
+
+            glViewport(0, 0, 2 * WIDTH / 3, HEIGHT);
             camera.Matrix(shaderProgram, "camMatrix");
             ground.render();
             for (auto &cell : cells)
@@ -352,10 +370,39 @@ public:
             }
             // cells[0].display3d();
             camera.Inputs(window);
+
+            // bot.vertices[10] = 15.0f;
+
+            // glViewport(3 * WIDTH / 4, 3 * HEIGHT / 4, WIDTH, HEIGHT);
+
+            glScissor(2 * WIDTH / 3, HEIGHT - WIDTH / 3, WIDTH, HEIGHT);
+            glEnable(GL_SCISSOR_TEST);
+            glViewport(2 * WIDTH / 3, HEIGHT - WIDTH / 3, WIDTH, HEIGHT);
+            glClearColor(0.1f, 0.3f, 0.1f, 0.8f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // mvp = nav_Projection * nav_View * maze.cells[i].model[j];
+            new_camera.Matrix(shaderProgram, "camMatrix");
+
+            ground.render();
+            for (auto &cell : cells)
+            {
+                cell.display3d();
+            }
+
+            std::cout << bot.vertices[0] << "  " << bot.vertices[1] << "  " << bot.vertices[2] << std::endl;
+            bodel = glm::mat4(1.0f);
+            bodel = glm::translate(bodel, camera.getPos());
+            mvp = camera.get_projection() * camera.get_view() * bodel;
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "camMatrix"), 1, GL_FALSE, &mvp[0][0]);
+
+            bot.render();
+            glDisable(GL_SCISSOR_TEST);
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
         ground.Delete();
+        bot.Delete();
         wall.Delete();
         groundtex.Delete();
         for (auto &cell : cells)

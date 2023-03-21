@@ -16,9 +16,10 @@ Cube::Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h)
         vertices[3 * i + 1] += y;
         vertices[3 * i + 2] += z;
     }
-    GLfloat largest = (w>b)?((w>h)?w:h):((b>h)?b:h);
-    for(int i = 0 ;i< sizeof(texCoords)/sizeof(texCoords[0]);i++){
-        texCoords[i] = texCoords[i]*largest;
+    GLfloat largest = (w > b) ? ((w > h) ? w : h) : ((b > h) ? b : h);
+    for (int i = 0; i < sizeof(texCoords) / sizeof(texCoords[0]); i++)
+    {
+        texCoords[i] = texCoords[i] * largest;
     }
     cubeVAO = new VAO;
     cubeVAO->Bind();
@@ -31,6 +32,12 @@ void Cube::linkAttribs()
 {
     cubeVAO->LinkAttrib(*cubeVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
     cubeVAO->LinkAttrib(*texVBO, 1, 2, GL_FLOAT, 2 * sizeof(float), (void *)0);
+}
+void Cube::Bind()
+{
+    cubeVAO->Bind();
+    cubeVBO->Bind();
+    cubeEBO->Bind();
 }
 void Cube::Unbind()
 {
@@ -57,4 +64,14 @@ void Cube::Delete()
 void Cube::linkTexture(Texture &texture)
 {
     Cube::texture = &texture;
+}
+void Cube::translate(glm::vec3 cord)
+{
+    Cube cb(cord.x, cord.y, cord.z, this->width, this->breadth, this->height);
+    for (int i = 0; i < 16; i++)
+    {
+        vertices[3 * i] = cb.vertices[3 * i];
+        vertices[3 * i + 1] = cb.vertices[3 * i + 1];
+        vertices[3 * i + 2] = cb.vertices[3 * i + 2];
+    }
 }

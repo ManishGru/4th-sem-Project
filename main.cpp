@@ -13,8 +13,8 @@
 
 
 // #define Astric
-#define _dijkstra
-int rows = 25, cols = 25;
+// #define _dijkstra
+int rows = 30, cols = 20;
 
 
 int main()
@@ -23,16 +23,16 @@ int main()
     
 
     std::srand(std::time(nullptr));
-    initscr();
-    raw();
+    // initscr();
+    // raw();
     Maze maze(rows, cols);
 
-    system("clear");
-    start_color();
+    // system("clear");
+    // start_color();
 
     maze.generateMaze();
-    maze.display();
-    refresh();
+    // maze.display();
+    // refresh();
 
 #ifdef _dijkstra
     dijkstra dijkstra(rows, cols, maze);
@@ -59,9 +59,9 @@ int main()
 
 #endif
 
-    refresh();
+    // refresh();
     // getch();
-    endwin();
+    // endwin();
     maze.display3d();
     return 0;
 }
