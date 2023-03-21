@@ -30,6 +30,24 @@ public:
         1.0f, 1.0f, 1.0f, // 14
         1.0f, 1.0f, 0.0f, // 15
     };
+
+    GLfloat normal[16 * 3] = {
+        -1.0f, -1.0f, -1.0f,//1
+        -1.0f, -1.0f, 1.0f,   //2
+        1.0f, -1.0f, 1.0f,//3
+        1.0f, -1.0f, -1.0f,      //4
+        -1.0f, 1.0f, -1.0f,//5
+        -1.0f, 1.0f, 1.0f,//6
+        1.0f, 1.0f, 1.0f,//7
+        1.0f, 1.0f, -1.0f,//8
+        -1.0f, -1.0f, -1.0f,//9
+        -1.0f, -1.0f, 1.0f,//10
+        1.0f, -1.0f, 1.0f,//11
+        1.0f, -1.0f, -1.0f,//12
+        -1.0f, 1.0f, -1.0f,//13
+        -1.0f, 1.0f, 1.0f,//14
+        1.0f, 1.0f, 1.0f,//15
+        1.0f, 1.0f, -1.0f};//16
     GLfloat texCoords[16 * 2] = {
         1.0f, 0.0f,
         0.0f, 0.0f,
@@ -61,11 +79,13 @@ public:
         8, 10, 11,  // front
         9, 8, 10    // front
     };
+
     GLfloat width, breadth, height;
     GLfloat location[3];
     VAO *cubeVAO;
     VBO *cubeVBO;
     VBO *texVBO;
+    VBO *normalVBO;
     EBO *cubeEBO;
     Texture *texture;
     Cube(){}
@@ -78,5 +98,7 @@ public:
 
     void render();
     void Delete();
+    void sourceRender();
+    void sourceLink();
 };
 #endif

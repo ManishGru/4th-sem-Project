@@ -26,6 +26,7 @@ Cube::Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h, boo
     cubeVAO->Bind();
     cubeVBO = new VBO(vertices, sizeof(vertices));
     texVBO = new VBO(texCoords, sizeof(texCoords));
+    normalVBO = new VBO(normal, sizeof(normal));
     cubeEBO = new EBO(indices, sizeof(indices));
 }
 
@@ -33,6 +34,7 @@ void Cube::linkAttribs()
 {
     cubeVAO->LinkAttrib(*cubeVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
     cubeVAO->LinkAttrib(*texVBO, 1, 2, GL_FLOAT, 2 * sizeof(float), (void *)0);
+    cubeVAO->LinkAttrib(*normalVBO, 2, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void *)0);
 }
 void Cube::Bind()
 {
@@ -44,6 +46,8 @@ void Cube::Unbind()
 {
     cubeVAO->Unbind();
     cubeVBO->Unbind();
+    texVBO->Unbind();
+    normalVBO->Unbind();
     cubeEBO->Unbind();
 }
 
@@ -56,6 +60,17 @@ void Cube::render()
     cubeVAO->Unbind();
     texture->Unbind();
 }
+void Cube::sourceLink()
+{
+    cubeVAO->LinkAttrib(*cubeVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
+    
+}
+void Cube::sourceRender()
+{
+    cubeVAO->Bind();
+    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+    cubeVAO->Unbind();
+}
 void Cube::Delete()
 {
     cubeVAO->Delete();
@@ -66,6 +81,7 @@ void Cube::linkTexture(Texture &texture)
 {
     Cube::texture = &texture;
 }
+
 void Cube::translate(glm::vec3 cord)
 {
     Cube cb(cord.x, cord.y, cord.z, this->width, this->breadth, this->height, false);

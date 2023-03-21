@@ -8,7 +8,7 @@
 #include "cell.cpp"
 using namespace std;
 
-int ROWS, COLS;
+int Rows, Cols;
 /*---------------------------------------*/
 /*
     Star Class contain each cell and its f,g,h scores, neighbours and their parents
@@ -62,21 +62,21 @@ public:
 
     inline int getIndex() // convert (x,y) into index
     {
-        if (cell->x < 0 || cell->y < 0 || this->cell->x > ROWS - 1 || cell->y > COLS - 1)
+        if (cell->x < 0 || cell->y < 0 || this->cell->x > Rows - 1 || cell->y > Cols - 1)
         {
             return -1;
         }
-        return cell->x + cell->y * COLS;
+        return cell->x + cell->y * Cols;
     }
 };
 /*---------------------------------------*/
 inline int getIndex(int x, int y)
 {
-    if (x < 0 || y < 0 || x > COLS - 1 || y > ROWS - 1)
+    if (x < 0 || y < 0 || x > Cols - 1 || y > Rows - 1)
     {
         return -1;
     }
-    return x + y * COLS;
+    return x + y * Cols;
 }
 
 inline int h(Cell c1, Cell c2) // heuristics
@@ -86,9 +86,9 @@ inline int h(Cell c1, Cell c2) // heuristics
 /*---------------------------------------*/
 void aStar(Maze &maze, int check) // main function that compute shortest path
 {
-    ROWS = maze.rows, COLS = maze.cols;
-    int s = maze.getIndex(maze.startcell->x, maze.startcell->y);
-    int e = maze.getIndex(maze.endcell->x, maze.endcell->y);
+    Rows = maze.rows, Cols = maze.cols;
+    // int s = maze.getIndex(maze.startcell->x, maze.startcell->y);
+    // int e = maze.getIndex(maze.endcell->x, maze.endcell->y);
     Star end(maze.endcell, INT16_MAX, INT16_MAX, INT16_MAX);
     Star start(maze.startcell, 0, 0, 0);
 
@@ -188,7 +188,7 @@ void aStar(Maze &maze, int check) // main function that compute shortest path
         }
         closedSet.push_back(current); // add current cell to closed list
 
-        int high_f = INT16_MAX, high_neb = 0;
+        // int high_f = INT16_MAX, high_neb = 0;
 
         for (int i = 0; i < current.itsneighbours.size(); i++) // traverse over all the neighbours of the current cell
         {
