@@ -88,8 +88,8 @@ public:
     VBO *normalVBO;
     EBO *cubeEBO;
     Texture *texture;
-    Cube() {}
-    Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h);
+    Cube(){}
+    Cube(GLfloat x, GLfloat y, GLfloat z, GLfloat w, GLfloat b, GLfloat h, bool scaleTex);
     void linkAttribs();
     void Unbind();
     void linkTexture(Texture &texture);

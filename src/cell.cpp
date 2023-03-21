@@ -2,6 +2,7 @@
 #define __CELL__
 #include <iostream>
 #include <ncurses.h>
+#include<vector>
 #include "../inc/cube.h"
 // #include "./maze.cpp"
 #define TOP 0X01
@@ -218,18 +219,18 @@ public:
     }
     void init3d(Texture &texture)
     {
-        cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 0.0f, 0.3f, 1.0f, 0.3f));
+        cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 0.0f, 0.3f, 1.0f, 0.3f,1));
         if (checkWall(TOP))
-            cubes.push_back(Cube(2 * x + 0.3f, -5.0f, 2 * y + 0.0f, 1.4f, 1.0f, 0.3f)); // top wall
-        cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 0.0f, 0.3f, 1.0f, 0.3f));
+            cubes.push_back(Cube(2 * x + 0.3f, -5.0f, 2 * y + 0.0f, 1.4f, 1.0f, 0.3f,1)); // top wall
+        cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 0.0f, 0.3f, 1.0f, 0.3f,1));
         if (checkWall(LEFT))
-            cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 0.3f, 0.3f, 1.0f, 1.4f)); // left wall
-        cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 1.7f, 0.3f, 1.0f, 0.3f));
+            cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 0.3f, 0.3f, 1.0f, 1.4f,1)); // left wall
+        cubes.push_back(Cube(2 * x + 0.0f, -5.0f, 2 * y + 1.7f, 0.3f, 1.0f, 0.3f,1));
         if (checkWall(BOTTOM))
-            cubes.push_back(Cube(2 * x + 0.3f, -5.0f, 2 * y + 1.7f, 1.4f, 1.0f, 0.3f)); // bottom wall
-        cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 1.7f, 0.3f, 1.0f, 0.3f));
+            cubes.push_back(Cube(2 * x + 0.3f, -5.0f, 2 * y + 1.7f, 1.4f, 1.0f, 0.3f,1)); // bottom wall
+        cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 1.7f, 0.3f, 1.0f, 0.3f,1));
         if (checkWall(RIGHT))
-            cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 0.3f, 0.3f, 1.0f, 1.4f)); // right wall
+            cubes.push_back(Cube(2 * x + 1.7f, -5.0f, 2 * y + 0.3f, 0.3f, 1.0f, 1.4f,1)); // right wall
         for (auto &cuboid : cubes)
         {
             cuboid.linkAttribs();

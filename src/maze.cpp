@@ -45,10 +45,10 @@ public:
     Maze &operator=(Maze &&) = default;
     Maze &operator=(const Maze &) = default;
 
-    Maze(int rows = 16, int cols = 16)
+    Maze(int r = 16, int c = 16)
     {
-        this->rows = rows;
-        this->cols = cols;
+        this->rows = r;
+        this->cols = c;
         // define all the cells
         for (int i = 0; i < rows; i++)
         {
@@ -59,7 +59,7 @@ public:
         }
         startcell = &cells[0];
         startcell->isStart = true;
-        endcell = &cells[cells.size() - 1];
+        endcell = &cells[getIndex(cols-1,rows-1)];
         endcell->isEnd = true;
     }
     // display all the cells
@@ -307,12 +307,17 @@ public:
 
         Shader shaderProgram("./shaders/lightshaders/default.vert", "./shaders/lightshaders/default.frag"); // Compiles and links the vertex and fragment shaders
 
-        Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f);
-
+        Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f, 1);
+        Cube start_indicator(startcell->x * 2 + 0.3, -5.0f, startcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
+        Cube end_indicator(endcell->x * 2 + 0.3, -5.0f, endcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
         ground.linkAttribs();
         ground.Unbind();
+        start_indicator.linkAttribs();
+        start_indicator.Unbind();
+        end_indicator.linkAttribs();
+        end_indicator.Unbind();
 
-        Cube lightsource(5.0f, 5.0f, 5.0f, 1.0f, 1.0f, 1.0f);
+        Cube lightsource(5.0f, 5.0f, 5.0f, 1.0f, 1.0f, 1.0f, false);
         lightsource.sourceLink();
         lightsource.Unbind();
 
@@ -338,6 +343,11 @@ public:
         Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
         wall.texUnit(shaderProgram, "tex0", 0);
 
+        Texture starttex("./resources/start.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+        starttex.texUnit(shaderProgram, "tex0", 0);
+
+        Texture endtex("./resources/end.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+        starttex.texUnit(shaderProgram, "tex0", 0);
         for (auto &cell : cells)
         {
             cell.init3d(wall);
@@ -348,14 +358,15 @@ public:
         groundtex.texUnit(shaderProgram, "tex0", 0);
 
         ground.linkTexture(groundtex);
-
+        start_indicator.linkTexture(starttex);
+        end_indicator.linkTexture(endtex);
         glEnable(GL_DEPTH_TEST);
 
         // for some maze viewing thingy
         //  Camera camera(WIDTH, HEIGHT, glm::vec3(-10.0f, 2.0f, -10.0f), 45.0f, 0.1f, 100.0f);
         //  camera.Rotate(180+45,glm::vec3(0.0f,1.0f,0.f));
         // for playing the maze game
-        Camera camera(WIDTH, HEIGHT, glm::vec3((float)2 * (startcell->x) + 1.0f, -4.5f, (float)2 * (startcell->y) + 1.0f), 45.0f, 0.1f, 100.0f);
+        Camera camera(WIDTH, HEIGHT, glm::vec3((float)2 * (startcell->x) + 1.0f, -4.5f, (float)2 * (startcell->y) + 1.0f), 55.0f, 0.01f, 100.0f);
         if (!startcell->checkWall(RIGHT))
             camera.Rotate(-90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         else
@@ -366,6 +377,10 @@ public:
         // working loop and breaks if the window is closed
         while (!glfwWindowShouldClose(window) && (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS))
         {
+            int cameraCelli = floor(camera.Position.x / 2), cameraCellj = floor(camera.Position.z / 2);
+            uint8_t camerawalls = cells[getIndex(cameraCelli, cameraCellj)].walls;
+            // printf("%x\t",camerawalls);
+            // std::cout << cameraCelli << "\t" << cameraCellj << std::endl;
             glClearColor(0.1f, 0.3f, 0.8f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -375,6 +390,8 @@ public:
             shaderProgram.Activate();
             camera.Matrix(shaderProgram, "camMatrix");
             ground.render();
+            start_indicator.render();
+            end_indicator.render();
             lightsource.sourceRender();
 
             for (auto &cell : cells)
@@ -382,13 +399,16 @@ public:
                 cell.display3d();
             }
             // cells[0].display3d();
-            camera.Inputs(window);
+            camera.Inputs(window, camerawalls);
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
         ground.Delete();
         wall.Delete();
         groundtex.Delete();
+        start_indicator.Delete();
+        end_indicator.Delete();
+
         for (auto &cell : cells)
         {
             cell.delete3d();
