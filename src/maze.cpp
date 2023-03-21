@@ -11,6 +11,9 @@
 
 #include "../inc/glad.h"
 #include <GLFW/glfw3.h>
+#include <freetype2/ft2build.h>
+#include <freetype/freetype.h>
+#include FT_FREETYPE_H
 
 #include "../inc/glm/glm.hpp"
 #include "../inc/glm/gtc/matrix_transform.hpp"
@@ -45,10 +48,10 @@ public:
     Maze &operator=(Maze &&) = default;
     Maze &operator=(const Maze &) = default;
 
-    Maze(int rows = 16, int cols = 16)
+    Maze(int r = 16, int c = 16)
     {
-        this->rows = rows;
-        this->cols = cols;
+        this->rows = r;
+        this->cols = c;
         // define all the cells
         for (int i = 0; i < rows; i++)
         {
@@ -59,8 +62,9 @@ public:
         }
         startcell = &cells[0];
         startcell->isStart = true;
-        endcell = &cells[getIndex(rows-1,cols-1)];
+        endcell = &cells[getIndex(rows / 2 - 1, cols / 2 - 1)];
         endcell->isEnd = true;
+        std::cout << "bhbhbu" << endcell->x << "  " << endcell->y << std::endl;
     }
     // display all the cells
     void display(int x = -1, int y = -1)
@@ -284,7 +288,7 @@ public:
         endcell->isEnd = true;
         this->generateMaze();
     }
-    int display3d()
+    void display3d()
     {
         // GLFW initialization
         glfwInit();
@@ -298,7 +302,7 @@ public:
             // creation failed
             std::cout << "Failed to create Window" << std::endl;
             glfwTerminate();
-            return -1;
+            return;
         }
         glfwMakeContextCurrent(window); // tells glfw to make the window part of the current context
         // context: state of the opengl , OpenGL is a state machine
@@ -310,8 +314,10 @@ public:
         Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag"); // Compiles and links the vertex and fragment shaders
 
         Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f, 1);
-        Cube start_indicator(startcell->x*2 + 0.3, -5.0f, startcell->y*2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
-        Cube end_indicator(endcell->x*2 + 0.3, -5.0f, endcell->y*2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
+        Cube start_indicator(startcell->x * 2 + 0.3, -5.0f, startcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
+        Cube end_indicator(endcell->x * 2 + 0.3, -5.0f, endcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
+
+        std::cout << endcell->x << "  " << endcell->y << std::endl;
         ground.linkAttribs();
         ground.Unbind();
         start_indicator.linkAttribs();
@@ -351,7 +357,7 @@ public:
         else
             camera.Rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        Cube bot(camera.getPos().x - 0.5f, camera.getPos().y, camera.getPos().z - 0.5f, 0.8f, 0.8f, 0.8f);
+        Cube bot(camera.getPos().x - 0.5f, camera.getPos().y, camera.getPos().z - 1.5f, 1.0f, 1.0f, 1.0f, false);
         bot.translate(glm::vec3(10.0f, 0.0f, 10.0f));
 
         bot.linkAttribs();
@@ -362,13 +368,41 @@ public:
         glm::mat4 bodel = glm::mat4(1.0f);
         glm::mat4 mvp;
 
-        Camera new_camera(WIDTH, HEIGHT, glm::vec3(-27, 110.0f, 60), 61.0f, 0.1f, 120.0f);
+        // Camera new_camera(WIDTH, HEIGHT, glm::vec3(-27, 110.0f, 60), 61.0f, 0.1f, 120.0f);
+        glViewport(2 * WIDTH / 3, HEIGHT - WIDTH / 3, WIDTH, HEIGHT);
+        Camera new_camera(WIDTH, HEIGHT, glm::vec3(67, 110.0f, 0), 61.0f, 0.1f, 120.0f);
+
         new_camera.change_orientation();
+        // new_camera.Rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        // FT_Library library;
+        // FT_Face face;
+        // if (FT_Init_FreeType(&library))
+        // {
+        //     std::cout << "an error occurred during library initialization..." << std::endl;
+        // }
+
+        // int error = FT_New_Face(library,
+        //                         "/usr/share/fonts/truetype/pagul/pagul.ttf",
+        //                         0,
+        //                         &face);
+        // if (error)
+        // {
+        //     std::cout << "... the font file could be opened and read, but it appears... that its font format is unsupported" << std::endl;
+        // }
+
+        // FT_Set_Char_Size(face, 0, 16*64, 300, 300);
+        // FT_Set_Pixel_Sizes(face, 0, 16);
+
+        // if(FT_Load_Char(face, 'X', FT_LOAD_RENDER)){
+        //     std::cout<<"ERROR::: cannot load"<<std::endl;
+        // }
+
         // working loop and breaks if the window is closed
         while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
         {
-            int cameraCelli = floor(camera.Position.x / 2), cameraCellj= floor(camera.Position.z / 2);
-            uint8_t camerawalls = cells[getIndex(cameraCelli,cameraCellj)].walls;
+            int cameraCelli = floor(camera.Position.x / 2), cameraCellj = floor(camera.Position.z / 2);
+            uint8_t camerawalls = cells[getIndex(cameraCelli, cameraCellj)].walls;
             // printf("%x\t",camerawalls);
             // std::cout << cameraCelli << "\t" << cameraCellj << std::endl;
             glClearColor(0.1f, 0.3f, 0.8f, 1.0f);
@@ -384,12 +418,15 @@ public:
             {
                 cell.display3d();
             }
-            // cells[0].display3d();
-            camera.Inputs(window,camerawalls);
+            camera.Inputs(window, camerawalls);
+            /*---------------------------------------------*/
+            glScissor(2 * WIDTH / 3, 0, WIDTH, HEIGHT - WIDTH / 3);
+            glEnable(GL_SCISSOR_TEST);
+            glViewport(2 * WIDTH / 3, 0, WIDTH, HEIGHT - WIDTH / 3);
+            glClearColor(0.1f, 0.1f, 0.3f, 0.8f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glDisable(GL_SCISSOR_TEST);
 
-            // bot.vertices[10] = 15.0f;
-
-            // glViewport(3 * WIDTH / 4, 3 * HEIGHT / 4, WIDTH, HEIGHT);
 
             glScissor(2 * WIDTH / 3, HEIGHT - WIDTH / 3, WIDTH, HEIGHT);
             glEnable(GL_SCISSOR_TEST);
@@ -400,18 +437,19 @@ public:
             new_camera.Matrix(shaderProgram, "camMatrix");
 
             ground.render();
+            start_indicator.render();
+            end_indicator.render();
             for (auto &cell : cells)
             {
                 cell.display3d();
             }
-
-            std::cout << bot.vertices[0] << "  " << bot.vertices[1] << "  " << bot.vertices[2] << std::endl;
+            // std::cout << camera.getPos().x << "  " << camera.getPos().y << "  " << camera.getPos().z << std::endl;
             bodel = glm::mat4(1.0f);
-            bodel = glm::translate(bodel, camera.getPos());
-            mvp = camera.get_projection() * camera.get_view() * bodel;
+            bodel = glm::translate(bodel, glm::vec3(camera.getPos().x - 0.5f, camera.getPos().y + 5.0f, camera.getPos().z));
+            mvp = new_camera.get_projection() * new_camera.get_view() * bodel;
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "camMatrix"), 1, GL_FALSE, &mvp[0][0]);
-
             bot.render();
+            // new_camera.Inputs(window, camerawalls);
             glDisable(GL_SCISSOR_TEST);
 
             glfwSwapBuffers(window);

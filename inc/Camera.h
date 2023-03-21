@@ -22,12 +22,13 @@ public:
     bool firstClick = true;
     int width;
     int height;
-    float speed = 0.01f;
+    float speed = 20000.8f;
     float sensitivity = 100.0f;
     bool V_pressed = false;
     bool V_released = true;// key debouncing
         glm::mat4 view;
     glm::mat4 projection;
+    glm::mat4 ortho_projection;
     
     Camera(int width, int height, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane);
     void Matrix(Shader &shader, const char *uniform);

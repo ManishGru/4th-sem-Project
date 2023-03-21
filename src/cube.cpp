@@ -68,7 +68,7 @@ void Cube::linkTexture(Texture &texture)
 }
 void Cube::translate(glm::vec3 cord)
 {
-    Cube cb(cord.x, cord.y, cord.z, this->width, this->breadth, this->height);
+    Cube cb(cord.x, cord.y, cord.z, this->width, this->breadth, this->height, false);
     for (int i = 0; i < 16; i++)
     {
         vertices[3 * i] = cb.vertices[3 * i];

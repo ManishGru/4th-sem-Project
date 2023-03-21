@@ -18,6 +18,7 @@ void Camera::Matrix(Shader &shader, const char *uniform)
 
     view = glm::lookAt(Position, Position + Orientation, Yaxis); // form where to look at, what to look at , up vector
     projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);
+    ortho_projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));
 }
 
@@ -152,11 +153,11 @@ void Camera::Inputs(GLFWwindow *window, uint8_t walls)
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
-        speed = 0.05f;
+        speed = 5.0f;
     }
     else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
     {
-        speed = 0.01f;
+        speed = 0.1f;
     }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
@@ -233,7 +234,7 @@ void Camera::Rotate(GLfloat degree, glm::vec3 axis)
 
 void Camera::change_orientation()
 {
-    Orientation = glm::vec3(0.0f, -4.0f, 0.01f);
+    Orientation = glm::vec3(0.00104305f,  -4.0f,  -0.089938f);
 }
 
 void display_4x4(std::string tag, glm::mat4 m4)
