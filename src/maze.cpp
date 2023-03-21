@@ -385,7 +385,7 @@ public:
 
         bot.linkAttribs();
         bot.Unbind();
-        Texture botex("./resources/soil.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+        Texture botex("./resources/bot.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
         botex.texUnit(shaderProgram, "tex0", 0);
         bot.linkTexture(botex);
         glm::mat4 bodel = glm::mat4(1.0f);

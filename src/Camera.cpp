@@ -15,7 +15,6 @@ void Camera::Matrix(Shader &shader, const char *uniform)
     // std::cout << Orientation.x << "  " << Orientation.y << "  " << Orientation.z << std::endl;
     // std::cout << Position.x << "  " << Position.y << "  " << Position.z << std::endl;
 
-
     view = glm::lookAt(Position, Position + Orientation, Yaxis); // form where to look at, what to look at , up vector
     projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);
     ortho_projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
@@ -159,73 +158,74 @@ void Camera::Inputs(GLFWwindow *window, uint8_t walls)
     {
         speed = 0.1f;
     }
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-    {
-        // Hides mouse cursor
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    // if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    // {
+    // Hides mouse cursor
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-        // Prevents camera from jumping on the first click
-        if (firstClick)
+    // Prevents camera from jumping on the first click
+    // if (firstClick)
+    // {
+    //     glfwSetCursorPos(window, (width / 2), (height / 2));
+    //     firstClick = false;
+    // }
+
+    // Stores the coordinates of the cursor
+    double mouseX;
+    double mouseY;
+    // Fetches the coordinates of the cursor
+    glfwGetCursorPos(window, &mouseX, &mouseY);
+    glfwSetCursorPos(window, width / 2, height / 2);
+
+    // Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
+    // and then "transforms" them into degrees
+    float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+    float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+
+    // Calculates upcoming vertical change in the Orientation
+    glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(rotX), glm::normalize(glm::cross(Orientation, Yaxis)));
+
+    // Decides whether or not the next vertical Orientation is legal or not
+    if (fabs(glm::angle(newOrientation, Yaxis) - glm::radians(90.0f)) <= glm::radians(85.0f))
+    {
+        Orientation = newOrientation;
+    }
+
+    // Rotates the Orientation left and right
+    Orientation = glm::rotate(Orientation, glm::radians(rotY), Yaxis);
+
+    // Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
+    // glfwSetCursorPos(window, (width / 2), (height / 2));
+
+if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+{
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    firstClick = true;
+}
+if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+{
+    V_released = false;
+}
+if (glfwGetKey(window, GLFW_KEY_V) == GLFW_RELEASE)
+{
+    if (V_released == false)
+    {
+        if (!V_pressed)
         {
-            glfwSetCursorPos(window, (width / 2), (height / 2));
-            firstClick = false;
+            lastPosition = Position;
+            lastOrientation = Orientation;
+            Position = glm::vec3(-10.0f, 2.0f, -10.0f);
+            Orientation = glm::vec3(1.0f, 0.0f, 1.0f);
         }
-
-        // Stores the coordinates of the cursor
-        double mouseX;
-        double mouseY;
-        // Fetches the coordinates of the cursor
-        glfwGetCursorPos(window, &mouseX, &mouseY);
-
-        // Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
-        // and then "transforms" them into degrees
-        float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-        float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
-
-        // Calculates upcoming vertical change in the Orientation
-        glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(rotX), glm::normalize(glm::cross(Orientation, Yaxis)));
-
-        // Decides whether or not the next vertical Orientation is legal or not
-        if (fabs(glm::angle(newOrientation, Yaxis) - glm::radians(90.0f)) <= glm::radians(85.0f))
+        else
         {
-            Orientation = newOrientation;
+            Position = lastPosition;
+            Orientation = lastOrientation;
         }
-
-        // Rotates the Orientation left and right
-        Orientation = glm::rotate(Orientation, glm::radians(rotY), Yaxis);
-
-        // Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
-        glfwSetCursorPos(window, (width / 2), (height / 2));
+        V_pressed = !V_pressed;
     }
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
-    {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        firstClick = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-    {
-        V_released = false;
-    }
-    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_RELEASE)
-    {
-        if (V_released == false)
-        {
-            if (!V_pressed)
-            {
-                lastPosition = Position;
-                lastOrientation = Orientation;
-                Position = glm::vec3(-10.0f, 2.0f, -10.0f);
-                Orientation = glm::vec3(1.0f, 0.0f, 1.0f);
-            }
-            else
-            {
-                Position = lastPosition;
-                Orientation = lastOrientation;
-            }
-            V_pressed = !V_pressed;
-        }
-        V_released = true;
-    }
+    V_released = true;
+}
 }
 void Camera::Rotate(GLfloat degree, glm::vec3 axis)
 {
@@ -234,7 +234,7 @@ void Camera::Rotate(GLfloat degree, glm::vec3 axis)
 
 void Camera::change_orientation()
 {
-    Orientation = glm::vec3(0.00104305f,  -4.0f,  -0.089938f);
+    Orientation = glm::vec3(0.00104305f, -4.0f, -0.089938f);
 }
 
 void display_4x4(std::string tag, glm::mat4 m4)
@@ -252,12 +252,15 @@ void display_4x4(std::string tag, glm::mat4 m4)
     std::cout << '\n';
 }
 
-glm::vec3 Camera::getPos(){
+glm::vec3 Camera::getPos()
+{
     return Position;
 }
-glm::mat4 Camera::get_view(){
+glm::mat4 Camera::get_view()
+{
     return view;
 }
-glm::mat4 Camera::get_projection(){
+glm::mat4 Camera::get_projection()
+{
     return projection;
 }
