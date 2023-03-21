@@ -45,10 +45,10 @@ public:
     Maze &operator=(Maze &&) = default;
     Maze &operator=(const Maze &) = default;
 
-    Maze(int rows = 16, int cols = 16)
+    Maze(int r = 16, int c = 16)
     {
-        this->rows = rows;
-        this->cols = cols;
+        this->rows = r;
+        this->cols = c;
         // define all the cells
         for (int i = 0; i < rows; i++)
         {
@@ -59,7 +59,7 @@ public:
         }
         startcell = &cells[0];
         startcell->isStart = true;
-        endcell = &cells[getIndex(rows-1,cols-1)];
+        endcell = &cells[getIndex(cols-1,rows-1)];
         endcell->isEnd = true;
     }
     // display all the cells
@@ -308,8 +308,8 @@ public:
         Shader shaderProgram("./shaders/default.vert", "./shaders/default.frag"); // Compiles and links the vertex and fragment shaders
 
         Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f, 1);
-        Cube start_indicator(startcell->x*2 + 0.3, -5.0f, startcell->y*2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
-        Cube end_indicator(endcell->x*2 + 0.3, -5.0f, endcell->y*2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
+        Cube start_indicator(startcell->x * 2 + 0.3, -5.0f, startcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
+        Cube end_indicator(endcell->x * 2 + 0.3, -5.0f, endcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
         ground.linkAttribs();
         ground.Unbind();
         start_indicator.linkAttribs();
@@ -352,8 +352,8 @@ public:
         // working loop and breaks if the window is closed
         while (!glfwWindowShouldClose(window))
         {
-            int cameraCelli = floor(camera.Position.x / 2), cameraCellj= floor(camera.Position.z / 2);
-            uint8_t camerawalls = cells[getIndex(cameraCelli,cameraCellj)].walls;
+            int cameraCelli = floor(camera.Position.x / 2), cameraCellj = floor(camera.Position.z / 2);
+            uint8_t camerawalls = cells[getIndex(cameraCelli, cameraCellj)].walls;
             // printf("%x\t",camerawalls);
             // std::cout << cameraCelli << "\t" << cameraCellj << std::endl;
             glClearColor(0.1f, 0.3f, 0.8f, 1.0f);
@@ -368,7 +368,7 @@ public:
                 cell.display3d();
             }
             // cells[0].display3d();
-            camera.Inputs(window,camerawalls);
+            camera.Inputs(window, camerawalls);
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
