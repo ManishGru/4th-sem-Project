@@ -17,7 +17,7 @@ public:
     bool isEnd = false;
     bool isOpen = false;
     bool isPath = false;
-    uint8_t value;
+    int value;
     // bool neighbours = false;
     // bool dijsktrashortPath = false;
     // std::vector<Cell*> itsneighbours;
