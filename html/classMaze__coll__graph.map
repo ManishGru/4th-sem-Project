@@ -1,0 +1,4 @@
+<map id="Maze" name="Maze">
+<area shape="rect" id="node1" title=" " alt="" coords="5,109,60,136"/>
+<area shape="rect" id="node2" href="$classCell.html" title=" " alt="" coords="10,5,55,32"/>
+</map>

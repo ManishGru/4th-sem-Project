@@ -77,10 +77,15 @@ inline int getIndex(int x, int y)
     return x + y * COLS;
 }
 
-inline int h(Cell c1, Cell c2) // heuristics
+inline int h_euclidian(Cell c1, Cell c2) // heuristics
 {
     return (sqrt((c2.x - c1.x) * (c2.x - c1.x) + (c2.y - c1.y) * (c2.y - c1.y)));
 }
+inline int h_manhattan(Cell c1, Cell c2)
+{
+    return (abs(c1.x - c2.x) + abs(c1.y - c2.y));
+}
+
 /*---------------------------------------*/
 void aStar(Maze &maze, int check) // main function that compute shortest path
 {
@@ -106,19 +111,9 @@ void aStar(Maze &maze, int check) // main function that compute shortest path
         }
         for (int i = 0; i < openSet.size(); i++) // make the decision which cell to choose next
         {
-            if (check) // choose according to g_score
+            if (openSet[i].f_score < openSet[winner].f_score)
             {
-                if (openSet[i].g_score < openSet[winner].g_score)
-                {
-                    winner = i;
-                }
-            }
-            else // choose according to g_score
-            {
-                if (openSet[i].f_score < openSet[winner].f_score)
-                {
-                    winner = i;
-                }
+                winner = i;
             }
         }
 
@@ -202,7 +197,7 @@ void aStar(Maze &maze, int check) // main function that compute shortest path
                 }
             }
 
-            if (!inClose)   //if the neighbour is not visited before
+            if (!inClose) // if the neighbour is not visited before
 
             {
                 neigh.previous = new Star();
@@ -217,19 +212,27 @@ void aStar(Maze &maze, int check) // main function that compute shortest path
                         break;
                     }
                 }
-                if (inOpen)         //and is in open list
+                if (inOpen) // and is in open list
                 {
-                    if (tempg < openSet[j].g_score) //then check for g_score 
+                    if (tempg < openSet[j].g_score) // then check for g_score
                     {
-                        openSet[j].g_score = tempg; //and update
+                        openSet[j].g_score = tempg; // and update
                     }
                     end.cell->isOpen = true;
                 }
-                else            //update values
+                else // update values
                 {
                     neigh.g_score = tempg;
                     neigh.cell->isOpen = true;
-                    neigh.h_score = h(*neigh.cell, *end.cell);
+
+                    if (check)
+                    {
+                        neigh.h_score = h_euclidian(*neigh.cell, *end.cell);
+                    }
+                    else
+                    {
+                        neigh.h_score = h_manhattan(*neigh.cell, *end.cell);
+                    }
                     neigh.f_score = neigh.g_score + neigh.h_score;
                     openSet.push_back(neigh);
                 }
@@ -250,6 +253,7 @@ void aStar(Maze &maze, int check) // main function that compute shortest path
             for (int i = 0; i < closedSet.size(); i++)
             {
                 closedSet[i].cell->display();
+                closedSet[i].cell->isOpen;
             }
             refresh();
             inOpen = false;
@@ -257,6 +261,6 @@ void aStar(Maze &maze, int check) // main function that compute shortest path
         count++;
         int mx, my;
         getmaxyx(stdscr, my, mx);
-        mvprintw(my - 0 - 1, 0, "g_score = %ld, h_score = %ld, f_score = %ld, count = %d", current.g_score, current.h_score, current.f_score, count);
+        mvprintw(my - 0 - 1, 0, "g_score = %ld , h_score = %ld , f_score = %ld , count = %d  ", current.g_score, current.h_score, current.f_score, count);
     }
 }
