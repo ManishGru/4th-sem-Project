@@ -5,9 +5,9 @@
 #include <cstdlib>
 #include <ctime>
 
-#define Astric
-// #define _dijkstra
-int rows = 13, cols = 41;
+// #define Astric
+#define _dijkstra
+int rows = 13, cols = 41; // 40 & 190
 
 #include "./bot.cpp"
 #include "./astar.cpp"
