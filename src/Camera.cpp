@@ -152,7 +152,7 @@ void Camera::Inputs(GLFWwindow *window, uint8_t walls)
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
-        speed = 5.0f;
+        speed = 0.5f;
     }
     else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
     {
@@ -161,7 +161,6 @@ void Camera::Inputs(GLFWwindow *window, uint8_t walls)
     // if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     // {
     // Hides mouse cursor
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     // Prevents camera from jumping on the first click
     // if (firstClick)

@@ -11,9 +11,6 @@
 
 #include "../inc/glad.h"
 #include <GLFW/glfw3.h>
-#include <freetype2/ft2build.h>
-#include <freetype/freetype.h>
-#include FT_FREETYPE_H
 
 #include "../inc/glm/glm.hpp"
 #include "../inc/glm/gtc/matrix_transform.hpp"
@@ -62,7 +59,7 @@ public:
         }
         startcell = &cells[0];
         startcell->isStart = true;
-        endcell = &cells[getIndex(rows / 2 - 1, cols / 2 - 1)];
+        endcell = &cells[getIndex(cols - 1, rows - 1)];
         endcell->isEnd = true;
         std::cout << "bhbhbu" << endcell->x << "  " << endcell->y << std::endl;
     }
@@ -313,9 +310,9 @@ public:
 
         Shader shaderProgram("./shaders/lightshaders/default.vert", "./shaders/lightshaders/default.frag"); // Compiles and links the vertex and fragment shaders
 
-        Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f, 1);
-        Cube start_indicator(startcell->x * 2 + 0.3, -5.0f, startcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
-        Cube end_indicator(endcell->x * 2 + 0.3, -5.0f, endcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);
+        Cube ground(-500.0f, -5.1f, -500.0f, 1000.0f, .1f, 1000.0f, 1);//creation of ground plane
+        Cube start_indicator(startcell->x * 2 + 0.3, -5.0f, startcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);//indiction of start cell
+        Cube end_indicator(endcell->x * 2 + 0.3, -5.0f, endcell->y * 2 + 0.3, 1.4f, 0.1f, 1.4f, 0);//indication for end cell
         ground.linkAttribs();
         ground.Unbind();
         start_indicator.linkAttribs();
@@ -323,11 +320,11 @@ public:
         end_indicator.linkAttribs();
         end_indicator.Unbind();
 
-        Cube lightsource(5.0f, 5.0f, 5.0f, 1.0f, 1.0f, 1.0f, false);
+        Cube lightsource((float)rows, 5.0f,(float) cols, 1.0f, 1.0f, 1.0f, false);//create a light source
         lightsource.sourceLink();
         lightsource.Unbind();
 
-        Shader lightShader("./shaders/lightshaders/light.vert", "./shaders/lightshaders/light.frag");
+        Shader lightShader("./shaders/lightshaders/light.vert", "./shaders/lightshaders/light.frag");//compile the light shader
 
         glm::vec4 lightColor = glm::vec4(1.9f, 1.9f, 1.9f, 1.0f);
         glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -346,13 +343,13 @@ public:
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightcolor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightpos"), lightPos.x, lightPos.y, lightPos.z);
 
-        Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+        Texture wall("./resources/br", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);//texture for maze wall
         wall.texUnit(shaderProgram, "tex0", 0);
 
-        Texture starttex("./resources/start.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+        Texture starttex("./resources/start.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);//texture for start indicator
         starttex.texUnit(shaderProgram, "tex0", 0);
 
-        Texture endtex("./resources/end.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+        Texture endtex("./resources/end.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);//texture for end indicator
         starttex.texUnit(shaderProgram, "tex0", 0);
         for (auto &cell : cells)
         {
@@ -360,7 +357,7 @@ public:
         }
 
         // create the texture in from the resoures tab
-        Texture groundtex("./resources/grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+        Texture groundtex("./resources/grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);//texture for ground
         groundtex.texUnit(shaderProgram, "tex0", 0);
 
         ground.linkTexture(groundtex);
@@ -398,32 +395,11 @@ public:
         new_camera.change_orientation();
         // new_camera.Rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        // FT_Library library;
-        // FT_Face face;
-        // if (FT_Init_FreeType(&library))
-        // {
-        //     std::cout << "an error occurred during library initialization..." << std::endl;
-        // }
-
-        // int error = FT_New_Face(library,
-        //                         "/usr/share/fonts/truetype/pagul/pagul.ttf",
-        //                         0,
-        //                         &face);
-        // if (error)
-        // {
-        //     std::cout << "... the font file could be opened and read, but it appears... that its font format is unsupported" << std::endl;
-        // }
-
-        // FT_Set_Char_Size(face, 0, 16*64, 300, 300);
-        // FT_Set_Pixel_Sizes(face, 0, 16);
-
-        // if(FT_Load_Char(face, 'X', FT_LOAD_RENDER)){
-        //     std::cout<<"ERROR::: cannot load"<<std::endl;
-        // }
-
         // working loop and breaks if the window is closed
         while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
         {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
             int cameraCelli = floor(camera.Position.x / 2), cameraCellj = floor(camera.Position.z / 2);
             uint8_t camerawalls = cells[getIndex(cameraCelli, cameraCellj)].walls;
             // printf("%x\t",camerawalls);
@@ -441,7 +417,7 @@ public:
             ground.render();
             start_indicator.render();
             end_indicator.render();
-            lightsource.sourceRender();
+            // lightsource.sourceRender();
 
             for (auto &cell : cells)
             {
@@ -455,7 +431,6 @@ public:
             glClearColor(0.1f, 0.1f, 0.3f, 0.8f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glDisable(GL_SCISSOR_TEST);
-
 
             glScissor(2 * WIDTH / 3, HEIGHT - WIDTH / 3, WIDTH, HEIGHT);
             glEnable(GL_SCISSOR_TEST);
