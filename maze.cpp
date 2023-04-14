@@ -39,9 +39,9 @@ public:
                 cells.push_back(*(new Cell(i, j)));
             }
         }
-        startcell = &cells[0];
+        startcell = &cells[50];
         startcell->isStart = true;
-        endcell = &cells[cells.size() - 1];
+        endcell = &cells[cells.size() - 100];
         endcell->isEnd = true;
     }
     // display all the cells
@@ -61,12 +61,15 @@ public:
     // generate the maze
     void generateMaze()
     {
+
         Cell *current = &cells[0]; // selecting a 0th cell as initial cell in the maze
         current->visited = true;
         std::vector<Cell *> st; // stack to backtrack the path
         // loop to generate maze
         while (1)
         {
+            this->display(current->x, current->y);
+            usleep(10000);
             std::vector<Cell *> neighbours; // stores the neighbour of current cell
             // top
             int index = getIndex(current->x, current->y - 1); // index of cell in the above of current cell
@@ -146,7 +149,7 @@ public:
                 current = st[st.size() - 1];                         // get last cell as the current cell
                 st.pop_back();                                       // remove the last cell
                 float randomnum = (float)random() / (float)RAND_MAX; // get random number to remmove wall from the current cell
-                if (randomnum > 0.5)                                 // remove wall randomly 0.1 times
+                if (randomnum > 0.9)                                 // remove wall randomly 0.1 times
                 {
                     std::vector<uint8_t> walls; // stores the walls of current cell
                     // check the wall and push it into the array
@@ -222,7 +225,7 @@ public:
             {
                 break;
             }
-            // this->display(current->x, current->y);
+            // this->display();
             // usleep(100000);
         }
     }

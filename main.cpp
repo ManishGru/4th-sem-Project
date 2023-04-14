@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 
-// #define Astric
+#define Astric
 #define _dijkstra
 int rows = 13, cols = 41; // 40 & 190
 
@@ -22,15 +22,17 @@ int main()
     system("clear");
     start_color();
 
+    maze.display();
     maze.generateMaze();
     maze.display();
+    getch();
     refresh();
 
 #ifdef _dijkstra
     dijkstra dijkstra(rows, cols, maze);
     dijkstra.shortPath();
     refresh();
-
+    getch(); 
 #endif
 
 #ifdef Astric
